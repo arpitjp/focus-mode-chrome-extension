@@ -10,12 +10,56 @@
   let timerInterval = null;
   let storageListener = null;
   let brandingClickHandler = null;
+  let mediaObserver = null;
+  let mediaKillerInterval = null;
+
+  // Stop all media on the page
+  function killAllMedia() {
+    // Stop all video elements
+    document.querySelectorAll('video').forEach(video => {
+      video.pause();
+      video.muted = true;
+      video.src = '';
+      video.srcObject = null;
+      video.load();
+    });
+    
+    // Stop all audio elements
+    document.querySelectorAll('audio').forEach(audio => {
+      audio.pause();
+      audio.muted = true;
+      audio.src = '';
+      audio.srcObject = null;
+      audio.load();
+    });
+    
+    // Remove all iframes (YouTube embeds, etc.)
+    document.querySelectorAll('iframe').forEach(iframe => {
+      iframe.src = 'about:blank';
+    });
+    
+    // Stop any playing media via Web Audio API (if possible)
+    if (window.AudioContext) {
+      try {
+        const contexts = window.__audioContexts || [];
+        contexts.forEach(ctx => ctx.close && ctx.close());
+      } catch (e) {}
+    }
+  }
 
   // Cleanup function to prevent memory leaks
   function cleanup() {
     if (timerInterval) {
       clearInterval(timerInterval);
       timerInterval = null;
+    }
+    if (mediaKillerInterval) {
+      clearInterval(mediaKillerInterval);
+      mediaKillerInterval = null;
+    }
+    if (mediaObserver) {
+      mediaObserver.disconnect();
+      mediaObserver = null;
     }
     if (storageListener) {
       chrome.storage.onChanged.removeListener(storageListener);
@@ -84,6 +128,25 @@
   function showBlockedOverlay(site, endTime) {
     // Check if overlay already exists
     if (document.getElementById('focus-blocker-overlay')) return;
+
+    // IMMEDIATELY kill all media
+    killAllMedia();
+    
+    // Keep killing media periodically (in case site tries to restart it)
+    mediaKillerInterval = setInterval(killAllMedia, 500);
+    
+    // Watch for new media elements being added
+    mediaObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.addedNodes.length) {
+          killAllMedia();
+        }
+      }
+    });
+    mediaObserver.observe(document.documentElement, { 
+      childList: true, 
+      subtree: true 
+    });
 
     // Create overlay container
     const overlay = document.createElement('div');
