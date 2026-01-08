@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Focus</h1>
+    
+    <div class="toggle-section">
+      <label class="toggle-label">
+        <span class="toggle-text">Blocking</span>
+        <input type="checkbox" id="blockingToggle" class="toggle-input">
+        <span class="toggle-slider"></span>
+      </label>
+      <p class="status-text" id="statusText">Off</p>
+    </div>
+
+    <div class="blocked-sites-section">
+      <h2>Blocked Websites</h2>
+      <div class="input-group">
+        <input type="text" id="siteInput" placeholder="e.g., facebook.com" class="site-input">
+        <button id="addSiteBtn" class="add-btn">Add</button>
+      </div>
+      <ul id="blockedSitesList" class="sites-list"></ul>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
+
