@@ -1,6 +1,6 @@
-# Website Blocker Chrome Extension
+# Focus - Website Blocker Chrome Extension
 
-A Chrome extension that allows you to block websites with an easy on/off toggle.
+A Chrome extension that allows you to block distracting websites and stay focused with an easy on/off toggle.
 
 ## Features
 

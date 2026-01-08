@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Block distracting websites and stay focused with an easy toggle",
   "author": "Arpit Jain <arpitjp@gmail.com>",
-  "homepage_url": "https://github.com/arpitjp",
+  "homepage_url": "https://github.com/arpitjp/focus-blocker",
   "permissions": [
     "declarativeNetRequest",
     "storage",
