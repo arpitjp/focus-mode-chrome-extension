@@ -226,9 +226,9 @@
           width: 200% !important;
           height: 200% !important;
           background: 
-            radial-gradient(ellipse at 15% 25%, rgba(99, 102, 241, 0.25) 0%, transparent 45%),
-            radial-gradient(ellipse at 85% 75%, rgba(139, 92, 246, 0.2) 0%, transparent 45%),
-            radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%) !important;
+            radial-gradient(ellipse at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+            radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+            radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 60%) !important;
           pointer-events: none !important;
         }
         #focus-blocker-overlay * {
