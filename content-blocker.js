@@ -235,16 +235,12 @@
         .focus-blocker-icon {
           width: 64px !important;
           height: 64px !important;
-          background: rgba(102, 126, 234, 0.15) !important;
-          border-radius: 16px !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
           flex-shrink: 0 !important;
         }
-        .focus-blocker-icon svg {
-          width: 32px !important;
-          height: 32px !important;
+        .focus-blocker-icon img {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: contain !important;
         }
         .focus-blocker-title {
           font-size: 32px !important;
@@ -353,10 +349,7 @@
       <div class="focus-blocker-container">
         <div class="focus-blocker-header">
           <div class="focus-blocker-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-            </svg>
+            <img src="${chrome.runtime.getURL('icon128.png')}" alt="Focus Mode">
           </div>
           <h1 class="focus-blocker-title">Stay Focused!</h1>
         </div>
