@@ -251,12 +251,13 @@
           background-clip: text !important;
         }
         .focus-blocker-subtitle {
-          font-size: 15px !important;
-          color: #8892a0 !important;
+          font-size: 14px !important;
+          color: #6b7280 !important;
           margin-bottom: 56px !important;
           line-height: 1.5 !important;
-          letter-spacing: 0.2px !important;
+          letter-spacing: 0.3px !important;
           font-weight: 400 !important;
+          opacity: 0.85 !important;
         }
         .focus-blocker-info {
           display: flex !important;
@@ -368,6 +369,7 @@
         </div>
         <div class="focus-blocker-footer">
         <div class="focus-blocker-branding" id="focus-blocker-branding">
+          <span>Powered by</span>
           <div class="focus-blocker-branding-icon">
             <img src="${chrome.runtime.getURL('icon128.png')}" alt="">
           </div>
