@@ -410,25 +410,22 @@
         }
         .focus-blocker-divider {
           width: 1px !important;
-          height: 16px !important;
-          background: rgba(255,255,255,0.1) !important;
+          height: 20px !important;
+          background: rgba(255,255,255,0.3) !important;
+          margin: 0 16px !important;
         }
         .focus-blocker-coffee {
           display: inline-flex !important;
           align-items: center !important;
-          gap: 6px !important;
-          color: #4a5568 !important;
-          font-size: 12px !important;
           text-decoration: none !important;
-          transition: color 0.15s ease !important;
-          animation: focus-nudge 0.5s ease-in-out 0.6s !important;
+          transition: opacity 0.15s ease !important;
         }
         .focus-blocker-coffee:hover {
-          color: #f5c842 !important;
+          opacity: 0.8 !important;
         }
-        .focus-blocker-coffee svg {
-          width: 14px !important;
-          height: 14px !important;
+        .focus-blocker-coffee img {
+          height: 20px !important;
+          vertical-align: middle !important;
         }
         @keyframes focus-nudge {
           0%, 100% { transform: translateX(0); }
@@ -461,10 +458,7 @@
         </div>
           <div class="focus-blocker-divider"></div>
           <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="focus-blocker-coffee">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2 21V19H20V21H2ZM20 8V5H3V8H2V4H21V8H20ZM18 17H3V8H18V17ZM19 8H21C21.55 8 22.021 8.196 22.413 8.588C22.805 8.98 23.001 9.451 23.001 10V13C23.001 13.55 22.805 14.021 22.413 14.413C22.021 14.805 21.55 15.001 21 15.001H19V13.001H21V10H19V8Z"/>
-            </svg>
-            <span>Buy me a coffee</span>
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="20">
           </a>
         </div>
       </div>
