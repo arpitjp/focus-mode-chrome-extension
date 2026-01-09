@@ -160,7 +160,7 @@
     if (!statusEl) return;
     
     if (!endTime) {
-      statusEl.textContent = 'Focus mode active';
+      statusEl.textContent = 'Focus Mode active';
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -195,7 +195,7 @@
       } else {
         timeStr = 'less than a minute';
       }
-      statusEl.textContent = `Focus mode active · Unblocks in ${timeStr}`;
+      statusEl.textContent = `Focus Mode active · Unblocks in ${timeStr}`;
     } else {
       removeOverlay();
     }
@@ -397,7 +397,7 @@
           </div>
           <div class="focus-blocker-text-group">
             <h1 class="focus-blocker-title">Access to <span class="focus-blocker-site-name">${escapeHtml(site)}</span> is blocked</h1>
-            <p class="focus-blocker-status" id="focus-blocker-status">Focus mode active</p>
+            <p class="focus-blocker-status" id="focus-blocker-status">Focus Mode active</p>
           </div>
         </div>
         <div class="focus-blocker-footer">
