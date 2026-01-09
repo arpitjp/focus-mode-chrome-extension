@@ -317,7 +317,7 @@ addSiteBtn.addEventListener('click', async () => {
       return;
     }
 
-    blockedSites.push(normalizedSite);
+    blockedSites.unshift(normalizedSite);
     await saveToStorage({ blockedSites });
     
     siteInput.value = '';
