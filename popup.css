@@ -360,7 +360,7 @@ h1 {
   padding: 5px 8px;
   color: var(--text-muted);
   transition: color 0.15s ease;
-  animation: nudge 0.4s ease-in-out 1.2s;
+  animation: nudge 0.4s ease-in-out 0.3s;
 }
 
 @keyframes nudge {
