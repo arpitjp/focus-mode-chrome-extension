@@ -325,7 +325,8 @@ h1 {
   font-weight: 500;
 }
 
-.sites-list li .site-name .wildcard {
+.sites-list li .site-name .wildcard,
+.sites-list li .site-name .protocol {
   color: var(--accent);
   font-weight: 600;
 }

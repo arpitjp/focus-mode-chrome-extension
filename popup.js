@@ -162,12 +162,26 @@ function displayBlockedSites(sites) {
     return;
   }
 
-  sites.forEach((site) => {
+  // Sort: protocols first, then wildcards, alphabetically within each group
+  const sortedSites = [...sites].sort((a, b) => {
+    const aIsProtocol = a.startsWith('http://') || a.startsWith('https://');
+    const bIsProtocol = b.startsWith('http://') || b.startsWith('https://');
+    
+    if (aIsProtocol && !bIsProtocol) return -1;
+    if (!aIsProtocol && bIsProtocol) return 1;
+    return a.localeCompare(b);
+  });
+
+  sortedSites.forEach((site) => {
     const li = document.createElement('li');
     const siteName = document.createElement('span');
     siteName.className = 'site-name';
     if (site.startsWith('*')) {
       siteName.innerHTML = '<span class="wildcard">*</span>' + escapeHtml(site.slice(1));
+    } else if (site.startsWith('https://')) {
+      siteName.innerHTML = '<span class="protocol">https://</span>' + escapeHtml(site.slice(8));
+    } else if (site.startsWith('http://')) {
+      siteName.innerHTML = '<span class="protocol">http://</span>' + escapeHtml(site.slice(7));
     } else {
       siteName.textContent = site;
     }
@@ -430,11 +444,16 @@ importFile.addEventListener('change', async (e) => {
       return;
     }
     
+    // Normalize imported sites
+    const normalizedImported = data.blockedSites
+      .map(site => normalizeSite(site))
+      .filter(site => site.length > 1); // Filter out invalid entries
+    
     const result = await chrome.storage.sync.get(['blockedSites']);
     const existingSites = result.blockedSites || [];
     
     // Merge and dedupe
-    const allSites = [...new Set([...existingSites, ...data.blockedSites])];
+    const allSites = [...new Set([...existingSites, ...normalizedImported])];
     
     await saveToStorage({ blockedSites: allSites });
     displayBlockedSites(allSites);
