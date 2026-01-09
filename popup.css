@@ -358,46 +358,62 @@ h1 {
   font-size: 10px;
   font-weight: 500;
   padding: 5px 8px;
-  color: var(--text-muted);
-  position: relative;
-  overflow: hidden;
-  transition: color 0.2s ease;
-}
-
-.coffee-link::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
   background: linear-gradient(
     90deg,
-    transparent 0%,
-    rgba(255, 221, 0, 0.4) 50%,
-    transparent 100%
+    var(--text-muted) 0%,
+    var(--text-muted) 40%,
+    #ffdd00 50%,
+    var(--text-muted) 60%,
+    var(--text-muted) 100%
   );
-  animation: sheen 0.8s ease-out 1s forwards;
+  background-size: 300% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sheen 1s ease 1.5s forwards;
+}
+
+.coffee-link .coffee-icon {
+  color: var(--text-muted);
+  animation: iconSheen 1s ease 1.5s forwards;
 }
 
 @keyframes sheen {
   0% {
-    left: -100%;
+    background-position: 100% 0;
   }
   100% {
-    left: 100%;
+    background-position: 0% 0;
+  }
+}
+
+@keyframes iconSheen {
+  0%, 40% {
+    color: var(--text-muted);
+  }
+  50% {
+    color: #ffdd00;
+  }
+  60%, 100% {
+    color: var(--text-muted);
   }
 }
 
 .coffee-link:hover {
-  color: #ffdd00;
+  background: #ffdd00;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: none;
 }
 
-.coffee-link:hover::after {
-  animation: sheen 0.8s ease-out infinite;
+.coffee-link:hover .coffee-icon {
+  color: #ffdd00;
+  animation: none;
 }
 
 .coffee-icon {
   width: 12px;
   height: 12px;
+  transition: color 0.15s ease;
 }
