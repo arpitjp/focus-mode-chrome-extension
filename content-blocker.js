@@ -313,10 +313,13 @@
           color: #667eea !important;
         }
         .focus-blocker-branding-icon {
-          width: 16px !important;
-          height: 16px !important;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-          border-radius: 3px !important;
+          width: 18px !important;
+          height: 18px !important;
+        }
+        .focus-blocker-branding-icon img {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: contain !important;
         }
         .focus-blocker-divider {
           width: 1px !important;
@@ -362,10 +365,12 @@
           </div>
         </div>
         <div class="focus-blocker-footer">
-          <div class="focus-blocker-branding" id="focus-blocker-branding">
-            <div class="focus-blocker-branding-icon"></div>
-            <span>Focus Mode</span>
+        <div class="focus-blocker-branding" id="focus-blocker-branding">
+          <div class="focus-blocker-branding-icon">
+            <img src="${chrome.runtime.getURL('icon128.png')}" alt="">
           </div>
+          <span>Focus Mode</span>
+        </div>
           <div class="focus-blocker-divider"></div>
           <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="focus-blocker-coffee">
             <svg viewBox="0 0 24 24" fill="currentColor">
