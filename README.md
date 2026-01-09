@@ -1,3 +1,10 @@
+<a href="https://buymeacoffee.com/arpitjpn" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+       alt="Buy Me A Coffee"
+       height="20"
+       style="vertical-align: middle;">
+</a>
+
 # Focus Mode - Website Blocker for Productivity
 
 A Chrome extension that blocks distracting websites to help you stay focused and productive.
