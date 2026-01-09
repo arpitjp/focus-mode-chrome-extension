@@ -428,5 +428,13 @@ importFile.addEventListener('change', async (e) => {
   importFile.value = '';
 });
 
+// Hide test timer option if not in development mode
+chrome.management.getSelf((info) => {
+  if (info.installType !== 'development') {
+    const testOption = document.getElementById('testTimerOption');
+    if (testOption) testOption.remove();
+  }
+});
+
 // Initialize
 loadState();

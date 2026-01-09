@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Focus Mode - Website Blocker for Productivity",
   "short_name": "Focus Mode",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Block distracting websites instantly. One-click toggle, custom timers, auto-unblock. Stay productive. 100% free.",
   "author": "Arpit Jain <arpitjp@gmail.com>",
   "homepage_url": "https://github.com/arpitjp/focus-blocker",
@@ -15,7 +15,8 @@
     "webNavigation",
     "scripting",
     "alarms",
-    "offscreen"
+    "offscreen",
+    "management"
   ],
   "host_permissions": [
     "<all_urls>"
