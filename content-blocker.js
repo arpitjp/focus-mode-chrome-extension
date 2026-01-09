@@ -222,13 +222,13 @@
         }
         .focus-blocker-container {
           text-align: center !important;
-          padding: 40px !important;
-          max-width: 500px !important;
+          padding: 48px !important;
+          max-width: 520px !important;
         }
         .focus-blocker-icon {
           width: 80px !important;
           height: 80px !important;
-          margin: 0 auto 24px auto !important;
+          margin: 0 auto 32px auto !important;
           background: rgba(102, 126, 234, 0.2) !important;
           border-radius: 20px !important;
           display: flex !important;
@@ -245,9 +245,9 @@
           height: 40px !important;
         }
         .focus-blocker-title {
-          font-size: 28px !important;
+          font-size: 32px !important;
           font-weight: 700 !important;
-          margin-bottom: 12px !important;
+          margin-bottom: 16px !important;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
           -webkit-background-clip: text !important;
           -webkit-text-fill-color: transparent !important;
@@ -256,26 +256,26 @@
         .focus-blocker-subtitle {
           font-size: 16px !important;
           color: #a0aec0 !important;
-          margin-bottom: 24px !important;
-          line-height: 1.5 !important;
+          margin-bottom: 32px !important;
+          line-height: 1.6 !important;
         }
         .focus-blocker-site {
           display: inline-block !important;
           background: rgba(102, 126, 234, 0.2) !important;
           border: 1px solid rgba(102, 126, 234, 0.3) !important;
-          padding: 8px 20px !important;
+          padding: 10px 24px !important;
           border-radius: 20px !important;
           font-size: 14px !important;
           color: #667eea !important;
           font-weight: 500 !important;
-          margin-bottom: 24px !important;
+          margin-bottom: 32px !important;
         }
         .focus-blocker-timer {
           background: rgba(102, 126, 234, 0.1) !important;
           border: 1px solid rgba(102, 126, 234, 0.2) !important;
           border-radius: 12px !important;
-          padding: 16px 24px !important;
-          margin-bottom: 24px !important;
+          padding: 20px 32px !important;
+          margin-bottom: 32px !important;
         }
         .focus-blocker-timer-label {
           font-size: 11px !important;
@@ -298,6 +298,7 @@
           font-size: 12px !important;
           cursor: pointer !important;
           transition: color 0.2s ease !important;
+          margin-bottom: 12px !important;
         }
         .focus-blocker-branding:hover {
           color: #667eea !important;
@@ -307,6 +308,29 @@
           height: 16px !important;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
           border-radius: 3px !important;
+        }
+        .focus-blocker-coffee {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 6px !important;
+          color: #4a5568 !important;
+          font-size: 11px !important;
+          text-decoration: none !important;
+          transition: color 0.15s ease !important;
+          animation: focus-nudge 0.5s ease-in-out 0.6s !important;
+        }
+        .focus-blocker-coffee:hover {
+          color: #f5c842 !important;
+        }
+        .focus-blocker-coffee svg {
+          width: 14px !important;
+          height: 14px !important;
+        }
+        @keyframes focus-nudge {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(2px); }
+          75% { transform: translateX(-2px); }
         }
       </style>
       <div class="focus-blocker-container">
@@ -327,6 +351,12 @@
           <div class="focus-blocker-branding-icon"></div>
           <span>Focus Mode</span>
         </div>
+        <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="focus-blocker-coffee">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2 21V19H20V21H2ZM20 8V5H3V8H2V4H21V8H20ZM18 17H3V8H18V17ZM19 8H21C21.55 8 22.021 8.196 22.413 8.588C22.805 8.98 23.001 9.451 23.001 10V13C23.001 13.55 22.805 14.021 22.413 14.413C22.021 14.805 21.55 15.001 21 15.001H19V13.001H21V10H19V8Z"/>
+          </svg>
+          <span>Buy me a coffee</span>
+        </a>
       </div>
     `;
 
