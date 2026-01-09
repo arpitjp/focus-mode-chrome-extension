@@ -13,3 +13,9 @@
   - audio off
 - test it day to day
 - write a medium article maybe on this
+
+
+Example headlines that perform:
+- “I kept opening Twitter while coding, so I blocked myself”
+- “Why I stopped using productivity apps and built my own”
+- “Most website blockers annoyed me. So I made a quiet one.”
