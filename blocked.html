@@ -47,14 +47,47 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 24px;
-      margin-bottom: 32px;
+      gap: 32px;
+      margin-bottom: 56px;
+    }
+    
+    .text-group {
+      text-align: left;
+    }
+    
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    
+    .site-name {
+      color: #fff;
+      -webkit-text-fill-color: #fff;
+    }
+    
+    .status-line {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.5;
+      letter-spacing: 0.3px;
+      font-weight: 400;
     }
     
     .icon {
-      width: 64px;
-      height: 64px;
+      width: 72px;
+      height: 72px;
       flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .icon:hover {
+      transform: scale(1.05);
     }
     
     .icon img {
@@ -63,157 +96,38 @@
       object-fit: contain;
     }
     
-    .title {
-      font-size: 32px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .subtitle {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 56px;
-      line-height: 1.5;
-      letter-spacing: 0.3px;
-      font-weight: 400;
-      opacity: 0.85;
-    }
-    
-    .info {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 64px;
-      flex-wrap: wrap;
-    }
-    
-    .blocked-site {
-      display: inline-block;
-      background: rgba(102, 126, 234, 0.12);
-      border: 1px solid rgba(102, 126, 234, 0.2);
-      padding: 14px 32px;
-      border-radius: 24px;
-      font-size: 15px;
-      color: #667eea;
-      font-weight: 500;
-    }
-    
-    .timer {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      background: rgba(102, 126, 234, 0.08);
-      border: 1px solid rgba(102, 126, 234, 0.15);
-      border-radius: 24px;
-      padding: 14px 32px;
-    }
-    
-    .timer-label {
-      font-size: 11px;
-      color: #718096;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-    }
-    
-    .timer-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #667eea;
-    }
-    
     .footer {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 24px;
-    }
-    
-    .branding {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #4a5568;
-      font-size: 12px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.2s ease;
-    }
-    
-    .branding:hover {
-      color: #667eea;
-    }
-    
-    .branding-icon {
-      width: 18px;
-      height: 18px;
-    }
-    
-    .branding-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    
-    .divider {
-      width: 1px;
-      height: 16px;
-      background: rgba(255,255,255,0.1);
     }
     
     .coffee-link {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      color: #4a5568;
-      font-size: 12px;
       text-decoration: none;
-      transition: color 0.15s ease;
-      animation: nudge 0.5s ease-in-out 0.6s;
+      opacity: 0.9;
+      transition: opacity 0.2s ease;
     }
     
     .coffee-link:hover {
-      color: #f5c842;
-    }
-    
-    .coffee-icon {
-      width: 14px;
-      height: 14px;
-    }
-    
-    @keyframes nudge {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(2px); }
-      75% { transform: translateX(-2px); }
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div class="icon"><img src="icon128.png" alt="Focus Mode"></div>
-      <h1 class="title">Stay Focused!</h1>
-    </div>
-    <p class="subtitle">This website has been blocked to help you stay productive.</p>
-    <div class="info">
-      <div class="blocked-site" id="blockedSite"></div>
-      <div class="timer" id="timer">
-        <div class="timer-label">Ends in</div>
-        <div class="timer-value" id="timerValue">∞</div>
+      <a href="#" class="icon" id="openSettings" title="Open Focus Mode settings"><img src="icon128.png" alt="Focus Mode"></a>
+      <div class="text-group">
+        <h1 class="title">Access to <span class="site-name" id="blockedSite"></span> is blocked</h1>
+        <p class="status-line" id="statusLine">Focus mode active</p>
       </div>
     </div>
     <div class="footer">
-      <a href="#" class="branding" id="openSettings">
-        <span>Powered by</span>
-        <div class="branding-icon"><img src="icon128.png" alt=""></div>
-        <span>Focus Mode</span>
-      </a>
-      <div class="divider"></div>
       <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="coffee-link">
-        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="20" style="vertical-align: middle;">
+        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="24"
+          style="vertical-align: middle;">
       </a>
     </div>
   </div>

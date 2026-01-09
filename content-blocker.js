@@ -132,7 +132,7 @@
       return;
     }
     if (changes.blockingEndTime !== undefined) {
-      updateTimerDisplay(changes.blockingEndTime.newValue);
+      updateStatusDisplay(changes.blockingEndTime.newValue);
     }
   };
   if (chrome.storage?.onChanged) {
@@ -145,7 +145,7 @@
       if (message.enabled === false) {
         removeOverlay();
       } else {
-        updateTimerDisplay(message.endTime);
+        updateStatusDisplay(message.endTime);
       }
     }
   };
@@ -153,14 +153,14 @@
     chrome.runtime.onMessage.addListener(messageListener);
   }
   
-  // Update timer display
-  function updateTimerDisplay(endTime) {
+  // Update status line display
+  function updateStatusDisplay(endTime) {
     currentEndTime = endTime;
-    const timerValue = document.getElementById('focus-blocker-timer-value');
-    if (!timerValue) return;
+    const statusEl = document.getElementById('focus-blocker-status');
+    if (!statusEl) return;
     
     if (!endTime) {
-      timerValue.textContent = '∞';
+      statusEl.textContent = 'Focus mode active';
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -168,33 +168,34 @@
       return;
     }
     
-    // Update immediately then start interval if not already running
-    updateTimerText(timerValue, endTime);
+    // Update immediately then start interval (every minute, less ticking)
+    updateStatusText(statusEl, endTime);
     
     if (!timerInterval) {
       timerInterval = setInterval(() => {
         if (currentEndTime) {
-          updateTimerText(timerValue, currentEndTime);
+          updateStatusText(statusEl, currentEndTime);
         }
-      }, 1000);
+      }, 60000); // Update every minute
     }
   }
   
-  function updateTimerText(timerValue, endTime) {
+  function updateStatusText(statusEl, endTime) {
     const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
     
     if (remaining > 0) {
       const hours = Math.floor(remaining / 3600);
-      const minutes = Math.floor((remaining % 3600) / 60);
-      const secs = remaining % 60;
+      const minutes = Math.ceil((remaining % 3600) / 60);
       
+      let timeStr;
       if (hours > 0) {
-        timerValue.textContent = `${hours}h ${minutes}m ${secs}s`;
+        timeStr = `${hours}h ${minutes}m`;
       } else if (minutes > 0) {
-        timerValue.textContent = `${minutes}m ${secs}s`;
+        timeStr = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
       } else {
-        timerValue.textContent = `${secs}s`;
+        timeStr = 'less than a minute';
       }
+      statusEl.textContent = `Focus mode active · Unblocks in ${timeStr}`;
     } else {
       removeOverlay();
     }
@@ -287,6 +288,8 @@
           justify-content: center !important;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
           overflow: hidden !important;
+          isolation: isolate !important;
+          color-scheme: dark !important;
         }
         #focus-blocker-overlay::before {
           content: '' !important;
@@ -303,6 +306,19 @@
         }
         #focus-blocker-overlay * {
           box-sizing: border-box !important;
+          filter: none !important;
+          -webkit-filter: none !important;
+          mix-blend-mode: normal !important;
+        }
+        #focus-blocker-overlay img {
+          opacity: 1 !important;
+          filter: none !important;
+          -webkit-filter: none !important;
+          transform: none !important;
+          mix-blend-mode: normal !important;
+          image-rendering: auto !important;
+          -webkit-backface-visibility: visible !important;
+          backface-visibility: visible !important;
         }
         .focus-blocker-container {
           text-align: center !important;
@@ -313,147 +329,80 @@
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          gap: 24px !important;
-          margin-bottom: 32px !important;
+          gap: 32px !important;
+          margin-bottom: 56px !important;
+        }
+        .focus-blocker-text-group {
+          text-align: left !important;
+        }
+        .focus-blocker-title {
+          font-size: 28px !important;
+          font-weight: 700 !important;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+          -webkit-background-clip: text !important;
+          -webkit-text-fill-color: transparent !important;
+          background-clip: text !important;
+          margin-bottom: 8px !important;
+        }
+        .focus-blocker-site-name {
+          color: #fff !important;
+          -webkit-text-fill-color: #fff !important;
+        }
+        .focus-blocker-status {
+          font-size: 14px !important;
+          color: #6b7280 !important;
+          line-height: 1.5 !important;
+          letter-spacing: 0.3px !important;
+          font-weight: 400 !important;
         }
         .focus-blocker-icon {
-          width: 64px !important;
-          height: 64px !important;
+          width: 72px !important;
+          height: 72px !important;
           flex-shrink: 0 !important;
+          cursor: pointer !important;
+          transition: transform 0.2s ease !important;
+        }
+        .focus-blocker-icon:hover {
+          transform: scale(1.05) !important;
         }
         .focus-blocker-icon img {
           width: 100% !important;
           height: 100% !important;
           object-fit: contain !important;
         }
-        .focus-blocker-title {
-          font-size: 32px !important;
-          font-weight: 700 !important;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-          -webkit-background-clip: text !important;
-          -webkit-text-fill-color: transparent !important;
-          background-clip: text !important;
-        }
-        .focus-blocker-subtitle {
-          font-size: 14px !important;
-          color: #6b7280 !important;
-          margin-bottom: 56px !important;
-          line-height: 1.5 !important;
-          letter-spacing: 0.3px !important;
-          font-weight: 400 !important;
-          opacity: 0.85 !important;
-        }
-        .focus-blocker-info {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 24px !important;
-          margin-bottom: 64px !important;
-          flex-wrap: wrap !important;
-        }
-        .focus-blocker-site {
-          display: inline-block !important;
-          background: rgba(102, 126, 234, 0.12) !important;
-          border: 1px solid rgba(102, 126, 234, 0.2) !important;
-          padding: 14px 32px !important;
-          border-radius: 24px !important;
-          font-size: 15px !important;
-          color: #667eea !important;
-          font-weight: 500 !important;
-        }
-        .focus-blocker-timer {
-          display: inline-flex !important;
-          align-items: center !important;
-          gap: 14px !important;
-          background: rgba(102, 126, 234, 0.08) !important;
-          border: 1px solid rgba(102, 126, 234, 0.15) !important;
-          border-radius: 24px !important;
-          padding: 14px 32px !important;
-        }
-        .focus-blocker-timer-label {
-          font-size: 11px !important;
-          color: #718096 !important;
-          text-transform: uppercase !important;
-          letter-spacing: 1.2px !important;
-        }
-        .focus-blocker-timer-value {
-          font-size: 20px !important;
-          font-weight: 700 !important;
-          color: #667eea !important;
-        }
         .focus-blocker-footer {
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          gap: 24px !important;
-        }
-        .focus-blocker-branding {
-          display: flex !important;
-          align-items: center !important;
-          gap: 8px !important;
-          color: #4a5568 !important;
-          font-size: 12px !important;
-          cursor: pointer !important;
-          transition: color 0.2s ease !important;
-        }
-        .focus-blocker-branding:hover {
-          color: #667eea !important;
-        }
-        .focus-blocker-branding-icon {
-          width: 18px !important;
-          height: 18px !important;
-        }
-        .focus-blocker-branding-icon img {
-          width: 100% !important;
-          height: 100% !important;
-          object-fit: contain !important;
         }
         .focus-blocker-coffee {
           display: inline-flex !important;
           align-items: center !important;
           text-decoration: none !important;
-          transition: opacity 0.15s ease !important;
-          padding-left: 24px !important;
-          border-left: 1px solid rgba(255,255,255,0.8) !important;
+          opacity: 0.9 !important;
+          transition: opacity 0.2s ease !important;
         }
         .focus-blocker-coffee:hover {
-          opacity: 0.8 !important;
+          opacity: 1 !important;
         }
         .focus-blocker-coffee img {
-          height: 20px !important;
+          height: 24px !important;
           vertical-align: middle !important;
-        }
-        @keyframes focus-nudge {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(2px); }
-          75% { transform: translateX(-2px); }
         }
       </style>
       <div class="focus-blocker-container">
         <div class="focus-blocker-header">
-          <div class="focus-blocker-icon">
+          <div class="focus-blocker-icon" id="focus-blocker-icon" title="Open Focus Mode settings">
             <img src="${chrome.runtime.getURL('icon128.png')}" alt="Focus Mode">
           </div>
-          <h1 class="focus-blocker-title">Stay Focused!</h1>
-        </div>
-        <p class="focus-blocker-subtitle">This website has been blocked to help you stay productive.</p>
-        <div class="focus-blocker-info">
-          <div class="focus-blocker-site">${escapeHtml(site)}</div>
-          <div class="focus-blocker-timer" id="focus-blocker-timer">
-            <div class="focus-blocker-timer-label">Ends in</div>
-            <div class="focus-blocker-timer-value" id="focus-blocker-timer-value">∞</div>
+          <div class="focus-blocker-text-group">
+            <h1 class="focus-blocker-title">Access to <span class="focus-blocker-site-name">${escapeHtml(site)}</span> is blocked</h1>
+            <p class="focus-blocker-status" id="focus-blocker-status">Focus mode active</p>
           </div>
         </div>
         <div class="focus-blocker-footer">
-        <div class="focus-blocker-branding" id="focus-blocker-branding">
-          <span>Powered by</span>
-          <div class="focus-blocker-branding-icon">
-            <img src="${chrome.runtime.getURL('icon128.png')}" alt="">
-          </div>
-          <span>Focus Mode</span>
-        </div>
           <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="focus-blocker-coffee">
-            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="20">
+            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee">
           </a>
         </div>
       </div>
@@ -464,13 +413,13 @@
 
     // Start timer if there's an end time
     if (endTime) {
-      updateTimerDisplay(endTime);
+      updateStatusDisplay(endTime);
     }
 
-    // Handle branding click
-    const branding = document.getElementById('focus-blocker-branding');
-    if (branding) {
-      branding.addEventListener('click', () => {
+    // Handle icon click to open settings
+    const icon = document.getElementById('focus-blocker-icon');
+    if (icon) {
+      icon.addEventListener('click', () => {
         chrome.runtime.sendMessage({ action: 'openPopup' }).catch(() => {});
       });
     }

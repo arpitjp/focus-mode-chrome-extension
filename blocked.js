@@ -15,44 +15,44 @@ if (site) {
     blockedSiteEl.textContent = url;
   }
 } else {
-  blockedSiteEl.textContent = 'Website blocked';
+  blockedSiteEl.textContent = 'This site';
 }
 
-// Timer elements
-const timerValueEl = document.getElementById('timerValue');
+// Status line element
+const statusLineEl = document.getElementById('statusLine');
 
 // State
 let timerInterval = null;
 let storageListener = null;
 let currentEndTime = null;
 
-function formatTime(seconds) {
-  if (seconds <= 0) return '0s';
+function formatTimeMinutes(seconds) {
+  if (seconds <= 0) return null;
   
   const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
+  const minutes = Math.ceil((seconds % 3600) / 60);
   
   if (hours > 0) {
-    return `${hours}h ${minutes}m ${secs}s`;
+    return `${hours}h ${minutes}m`;
   } else if (minutes > 0) {
-    return `${minutes}m ${secs}s`;
+    return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
   } else {
-    return `${secs}s`;
+    return 'less than a minute';
   }
 }
 
-function updateTimerDisplay() {
+function updateStatusLine() {
   if (!currentEndTime) {
-    timerValueEl.textContent = '∞';
+    statusLineEl.textContent = 'Focus mode active';
     return;
   }
   
   const remaining = Math.max(0, Math.floor((currentEndTime - Date.now()) / 1000));
   if (remaining > 0) {
-    timerValueEl.textContent = formatTime(remaining);
+    const timeStr = formatTimeMinutes(remaining);
+    statusLineEl.textContent = `Focus mode active · Unblocks in ${timeStr}`;
   } else {
-    timerValueEl.textContent = 'Done!';
+    statusLineEl.textContent = 'Unblocking...';
   }
 }
 
@@ -68,7 +68,7 @@ storageListener = (changes, areaName) => {
   
   if (changes.blockingEndTime !== undefined) {
     currentEndTime = changes.blockingEndTime.newValue;
-    updateTimerDisplay();
+    updateStatusLine();
   }
 };
 
@@ -83,12 +83,12 @@ async function initialize() {
     }
     
     currentEndTime = result.blockingEndTime || null;
-    updateTimerDisplay();
+    updateStatusLine();
     
-    timerInterval = setInterval(updateTimerDisplay, 1000);
+    timerInterval = setInterval(updateStatusLine, 60000); // Update every minute
     chrome.storage.onChanged.addListener(storageListener);
   } catch (e) {
-    timerValueEl.textContent = '∞';
+    statusLineEl.textContent = 'Focus mode active';
   }
 }
 
