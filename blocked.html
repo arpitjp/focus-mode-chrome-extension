@@ -4,98 +4,207 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blocked - Focus Mode</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f0f0f5;
+    }
+    
+    .container {
+      text-align: center;
+      padding: 60px;
+      max-width: 640px;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .icon {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+    
+    .icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .title {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 56px;
+      line-height: 1.5;
+      letter-spacing: 0.3px;
+      font-weight: 400;
+      opacity: 0.85;
+    }
+    
+    .info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 64px;
+      flex-wrap: wrap;
+    }
+    
+    .blocked-site {
+      display: inline-block;
+      background: rgba(102, 126, 234, 0.12);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      padding: 14px 32px;
+      border-radius: 24px;
+      font-size: 15px;
+      color: #667eea;
+      font-weight: 500;
+    }
+    
+    .timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(102, 126, 234, 0.08);
+      border: 1px solid rgba(102, 126, 234, 0.15);
+      border-radius: 24px;
+      padding: 14px 32px;
+    }
+    
+    .timer-label {
+      font-size: 11px;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+    
+    .timer-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #667eea;
+    }
+    
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    
+    .branding {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #4a5568;
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    
+    .branding:hover {
+      color: #667eea;
+    }
+    
+    .branding-icon {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .branding-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .divider {
+      width: 1px;
+      height: 16px;
+      background: rgba(255,255,255,0.1);
+    }
+    
+    .coffee-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #4a5568;
+      font-size: 12px;
+      text-decoration: none;
+      transition: color 0.15s ease;
+      animation: nudge 0.5s ease-in-out 0.6s;
+    }
+    
+    .coffee-link:hover {
+      color: #f5c842;
+    }
+    
+    .coffee-icon {
+      width: 14px;
+      height: 14px;
+    }
+    
+    @keyframes nudge {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(2px); }
+      75% { transform: translateX(-2px); }
+    }
+  </style>
 </head>
 <body>
-  <script src="blocked-ui.js"></script>
-  <script>
-    // Inject shared CSS
-    const style = document.createElement('style');
-    style.textContent = BlockedUI.css;
-    document.head.appendChild(style);
-
-    // Get blocked site from URL params
-    const params = new URLSearchParams(window.location.search);
-    const site = params.get('site') || params.get('url') || 'Website blocked';
-
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'focus-blocked-overlay';
-    overlay.innerHTML = BlockedUI.html(BlockedUI.escapeHtml(site), 'icon128.png');
-    document.body.appendChild(overlay);
-
-    // Timer state
-    let timerInterval = null;
-    let storageListener = null;
-    let currentEndTime = null;
-
-    function updateTimerDisplay() {
-      const timerValue = document.getElementById('focus-blocked-timer-value');
-      if (!timerValue) return;
-      
-      if (!currentEndTime) {
-        timerValue.textContent = '∞';
-        return;
-      }
-      
-      const remaining = Math.max(0, Math.floor((currentEndTime - Date.now()) / 1000));
-      timerValue.textContent = remaining > 0 ? BlockedUI.formatTime(remaining) : 'Done!';
-    }
-
-    // Storage change listener
-    storageListener = (changes, areaName) => {
-      if (areaName !== 'sync' && areaName !== 'local') return;
-      
-      if (changes.blockingEnabled?.newValue === false) {
-        cleanup();
-        window.history.back();
-        return;
-      }
-      
-      if (changes.blockingEndTime !== undefined) {
-        currentEndTime = changes.blockingEndTime.newValue;
-        updateTimerDisplay();
-      }
-    };
-
-    async function initialize() {
-      try {
-        const result = await chrome.storage.sync.get(['blockingEnabled', 'blockingEndTime']);
-        
-        if (!result.blockingEnabled) {
-          window.history.back();
-          return;
-        }
-        
-        currentEndTime = result.blockingEndTime || null;
-        updateTimerDisplay();
-        
-        timerInterval = setInterval(updateTimerDisplay, 1000);
-        chrome.storage.onChanged.addListener(storageListener);
-      } catch (e) {
-        // Storage read failed
-      }
-    }
-
-    function cleanup() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      if (storageListener) {
-        chrome.storage.onChanged.removeListener(storageListener);
-        storageListener = null;
-      }
-    }
-
-    window.addEventListener('beforeunload', cleanup);
-
-    // Handle branding click
-    document.getElementById('focus-blocked-branding')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') }).catch(() => {});
-    });
-
-    initialize();
-  </script>
+  <div class="container">
+    <div class="header">
+      <div class="icon"><img src="icon128.png" alt="Focus Mode"></div>
+      <h1 class="title">Stay Focused!</h1>
+    </div>
+    <p class="subtitle">This website has been blocked to help you stay productive.</p>
+    <div class="info">
+      <div class="blocked-site" id="blockedSite"></div>
+      <div class="timer" id="timer">
+        <div class="timer-label">Ends in</div>
+        <div class="timer-value" id="timerValue">∞</div>
+      </div>
+    </div>
+    <div class="footer">
+      <a href="#" class="branding" id="openSettings">
+        <span>Powered by</span>
+        <div class="branding-icon"><img src="icon128.png" alt=""></div>
+        <span>Focus Mode</span>
+      </a>
+      <div class="divider"></div>
+      <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="coffee-link">
+        <svg class="coffee-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2 21V19H20V21H2ZM20 8V5H3V8H2V4H21V8H20ZM18 17H3V8H18V17ZM19 8H21C21.55 8 22.021 8.196 22.413 8.588C22.805 8.98 23.001 9.451 23.001 10V13C23.001 13.55 22.805 14.021 22.413 14.413C22.021 14.805 21.55 15.001 21 15.001H19V13.001H21V10H19V8Z"/>
+        </svg>
+        <span>Buy me a coffee</span>
+      </a>
+    </div>
+  </div>
+  
+  <script src="blocked.js"></script>
 </body>
 </html>

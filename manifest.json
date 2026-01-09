@@ -33,7 +33,7 @@
     }
   },
   "web_accessible_resources": [{
-    "resources": ["blocked.html", "blocked-ui.js", "icon128.png", "content-blocker.js"],
+    "resources": ["blocked.html", "blocked.js", "icon128.png", "content-blocker.js"],
     "matches": ["<all_urls>"]
   }],
   "icons": {
