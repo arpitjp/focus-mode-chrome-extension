@@ -11,6 +11,13 @@ const timerText = document.getElementById('timerText');
 
 let countdownInterval = null;
 
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 // Single storage change listener for all updates
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== 'sync' && areaName !== 'local') return;
@@ -145,6 +152,7 @@ function getDurationMinutes() {
 // Display blocked sites list
 function displayBlockedSites(sites) {
   blockedSitesList.innerHTML = '';
+  const isBlocking = blockingToggle.checked;
   
   if (!sites || sites.length === 0) {
     const emptyState = document.createElement('li');
@@ -154,16 +162,27 @@ function displayBlockedSites(sites) {
     return;
   }
 
-  sites.forEach((site, index) => {
+  sites.forEach((site) => {
     const li = document.createElement('li');
     const siteName = document.createElement('span');
     siteName.className = 'site-name';
-    siteName.textContent = site;
+    if (site.startsWith('*')) {
+      siteName.innerHTML = '<span class="wildcard">*</span>' + escapeHtml(site.slice(1));
+    } else {
+      siteName.textContent = site;
+    }
     
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'delete-btn';
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.addEventListener('click', () => removeSite(index));
+    deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    
+    if (isBlocking) {
+      deleteBtn.disabled = true;
+      deleteBtn.title = "Can't delete while blocking is on";
+      deleteBtn.classList.add('disabled');
+    } else {
+      deleteBtn.addEventListener('click', () => removeSite(site));
+    }
     
     li.appendChild(siteName);
     li.appendChild(deleteBtn);
@@ -181,6 +200,10 @@ async function handleToggleChange() {
     lastDurationOption: selectedDuration,
     lastCustomMinutes: selectedDuration === 'custom' ? customMinutes.value : null
   });
+  
+  // Refresh the sites list to update delete button state
+  const result = await chrome.storage.sync.get(['blockedSites']);
+  displayBlockedSites(result.blockedSites ?? []);
   
   if (enabled) {
     durationContainer.style.display = 'block';
@@ -333,13 +356,13 @@ addSiteBtn.addEventListener('click', async () => {
 });
 
 // Remove a site from blocked list
-async function removeSite(index) {
+async function removeSite(site) {
   try {
     const result = await chrome.storage.sync.get(['blockedSites']);
     const blockedSites = result.blockedSites ?? [];
-    blockedSites.splice(index, 1);
-    await saveToStorage({ blockedSites });
-    displayBlockedSites(blockedSites);
+    const updatedSites = blockedSites.filter(s => s !== site);
+    await saveToStorage({ blockedSites: updatedSites });
+    displayBlockedSites(updatedSites);
     
     setTimeout(() => {
       chrome.runtime.sendMessage({ action: 'updateRules' }).catch(() => {});

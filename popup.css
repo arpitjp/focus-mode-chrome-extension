@@ -211,6 +211,30 @@ h1 {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border: 1px solid var(--text-muted);
+    border-radius: 50%;
+    cursor: help;
+    text-transform: none;
+    transition: all 0.15s ease;
+  }
+  
+  .info-icon:hover {
+    color: var(--accent);
+    border-color: var(--accent);
 }
 
 .input-group {
@@ -301,6 +325,10 @@ h1 {
   font-weight: 500;
 }
 
+.sites-list li .site-name .wildcard {
+  color: var(--accent);
+  font-weight: 600;
+}
 .sites-list li.empty-state {
   display: block;
   background: none;
@@ -315,17 +343,40 @@ h1 {
   background: transparent;
   color: var(--danger);
   border: none;
-  padding: 4px 10px;
+  padding: 4px;
   cursor: pointer;
-  font-size: 10px;
-  font-weight: 600;
   transition: all 0.15s ease;
-  letter-spacing: 0.2px;
+  opacity: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
 }
 
-.delete-btn:hover {
+.delete-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sites-list li:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover:not(.disabled) {
   color: var(--danger-hover);
-  background: rgba(255, 92, 92, 0.1);
+  background: rgba(255, 92, 92, 0.15);
+  }
+  
+  .delete-btn.disabled {
+    cursor: not-allowed;
+    color: var(--text-muted);
+  }
+  
+  .delete-btn.disabled:hover {
+    background: transparent;
+    color: var(--text-muted);
 }
 
 
