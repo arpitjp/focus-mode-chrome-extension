@@ -3,10 +3,10 @@
   "version": "1.0.2",
   "private": true,
   "scripts": {
-    "build": "node build.js"
+    "preview": "node build.js preview",
+    "deploy": "node build.js deploy"
   },
   "devDependencies": {
     "terser": "^5.27.0"
   }
 }
-

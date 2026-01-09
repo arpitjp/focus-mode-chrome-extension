@@ -25,37 +25,35 @@ const FILES_TO_COPY = [
 ];
 
 async function build() {
-  const args = process.argv.slice(2);
-  const bumpType = args[0] || 'patch'; // patch, minor, major
+  const mode = process.argv[2]; // 'preview' or 'deploy'
+  const isDeploy = mode === 'deploy';
 
-  console.log('🚀 Starting build...\n');
+  console.log(`\n🚀 ${isDeploy ? 'DEPLOY' : 'PREVIEW'} build...\n`);
 
-  // 1. Bump version
-  console.log('📦 Bumping version...');
+  // Read manifest
   const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-  const [major, minor, patch] = manifest.version.split('.').map(Number);
-  
-  let newVersion;
-  if (bumpType === 'major') {
-    newVersion = `${major + 1}.0.0`;
-  } else if (bumpType === 'minor') {
-    newVersion = `${major}.${minor + 1}.0`;
-  } else {
-    newVersion = `${major}.${minor}.${patch + 1}`;
-  }
-  
-  manifest.version = newVersion;
-  fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2) + '\n');
-  console.log(`   Version: ${newVersion}`);
+  let version = manifest.version;
 
-  // 2. Clean and create dist directory
+  // Bump version only for deploy
+  if (isDeploy) {
+    console.log('📦 Bumping version...');
+    const [major, minor, patch] = version.split('.').map(Number);
+    version = `${major}.${minor}.${patch + 1}`;
+    manifest.version = version;
+    fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+    console.log(`   ${manifest.version.replace(version, '')}${version}`);
+  } else {
+    console.log(`📦 Version: ${version} (preview - no bump)`);
+  }
+
+  // Clean and create dist directory
   console.log('\n🧹 Cleaning dist...');
   if (fs.existsSync(DIST_DIR)) {
     fs.rmSync(DIST_DIR, { recursive: true });
   }
   fs.mkdirSync(DIST_DIR);
 
-  // 3. Minify JS files
+  // Minify JS files
   console.log('\n🔧 Minifying JavaScript...');
   for (const file of FILES_TO_MINIFY) {
     if (!fs.existsSync(file)) {
@@ -76,50 +74,53 @@ async function build() {
       console.log(`   ✓ ${file} (-${savings}%)`);
     } catch (e) {
       console.error(`   ✗ ${file}: ${e.message}`);
-      // Copy unminified on error
       fs.copyFileSync(file, path.join(DIST_DIR, file));
     }
   }
 
-  // 4. Copy other files
+  // Copy other files (use updated manifest for deploy)
   console.log('\n📄 Copying files...');
   for (const file of FILES_TO_COPY) {
     if (!fs.existsSync(file)) {
       console.log(`   ⚠️  Skipping ${file} (not found)`);
       continue;
     }
-    fs.copyFileSync(file, path.join(DIST_DIR, file));
+    if (file === 'manifest.json' && isDeploy) {
+      // Write the updated manifest to dist
+      fs.writeFileSync(path.join(DIST_DIR, file), JSON.stringify(manifest, null, 2) + '\n');
+    } else {
+      fs.copyFileSync(file, path.join(DIST_DIR, file));
+    }
     console.log(`   ✓ ${file}`);
   }
 
-  // 5. Create tar.gz
-  console.log('\n📦 Creating archive...');
-  const tarName = `focus-blocker-v${newVersion}.tar.gz`;
-  execSync(`tar -czf ${tarName} -C ${DIST_DIR} .`, { stdio: 'inherit' });
-  const tarSize = (fs.statSync(tarName).size / 1024).toFixed(1);
-  console.log(`   ✓ ${tarName} (${tarSize} KB)`);
+  // Create archives
+  console.log('\n📦 Creating archives...');
+  const tarName = `focus-blocker-v${version}.tar.gz`;
+  const zipName = `focus-blocker-v${version}.zip`;
+  
+  execSync(`tar -czf ${tarName} -C ${DIST_DIR} .`, { stdio: 'pipe' });
+  console.log(`   ✓ ${tarName} (${(fs.statSync(tarName).size / 1024).toFixed(1)} KB)`);
+  
+  execSync(`cd ${DIST_DIR} && zip -rq ../${zipName} .`, { stdio: 'pipe' });
+  console.log(`   ✓ ${zipName} (${(fs.statSync(zipName).size / 1024).toFixed(1)} KB)`);
 
-  // 6. Create zip for Chrome Web Store
-  const zipName = `focus-blocker-v${newVersion}.zip`;
-  execSync(`cd ${DIST_DIR} && zip -r ../${zipName} .`, { stdio: 'inherit' });
-  const zipSize = (fs.statSync(zipName).size / 1024).toFixed(1);
-  console.log(`   ✓ ${zipName} (${zipSize} KB)`);
-
-  // 7. Git commit and push
-  console.log('\n🚀 Committing and pushing...');
-  try {
-    execSync('git add -A', { stdio: 'inherit' });
-    execSync(`git commit -m "build: v${newVersion}"`, { stdio: 'inherit' });
-    execSync('git push', { stdio: 'inherit' });
-    console.log('   ✓ Pushed to GitHub');
-  } catch (e) {
-    console.log('   ⚠️  Git push failed or nothing to commit');
+  // Git commit and push only for deploy
+  if (isDeploy) {
+    console.log('\n🚀 Committing and pushing...');
+    try {
+      execSync('git add -A', { stdio: 'pipe' });
+      execSync(`git commit -m "release: v${version}"`, { stdio: 'pipe' });
+      execSync('git push', { stdio: 'pipe' });
+      console.log('   ✓ Pushed to GitHub');
+    } catch (e) {
+      console.log('   ⚠️  Git push failed or nothing to commit');
+    }
   }
 
-  console.log(`\n✅ Build complete! v${newVersion}`);
-  console.log(`   📦 ${tarName}`);
-  console.log(`   📦 ${zipName}`);
+  console.log(`\n✅ ${isDeploy ? 'Deploy' : 'Preview'} complete! v${version}`);
+  console.log(`   📦 ${zipName} (for Chrome Web Store)`);
+  console.log(`   📦 ${tarName}\n`);
 }
 
 build().catch(console.error);
-
