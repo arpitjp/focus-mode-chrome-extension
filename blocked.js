@@ -19,7 +19,6 @@ if (site) {
 }
 
 // Timer elements
-const timerEl = document.getElementById('timer');
 const timerValueEl = document.getElementById('timerValue');
 
 // State
@@ -45,7 +44,7 @@ function formatTime(seconds) {
 
 function updateTimerDisplay() {
   if (!currentEndTime) {
-    timerValueEl.innerHTML = '<span class="timer-infinite">∞ Until you turn it off</span>';
+    timerValueEl.textContent = '∞';
     return;
   }
   
@@ -53,22 +52,20 @@ function updateTimerDisplay() {
   if (remaining > 0) {
     timerValueEl.textContent = formatTime(remaining);
   } else {
-    timerValueEl.innerHTML = '<span class="timer-infinite">Session ended!</span>';
+    timerValueEl.textContent = 'Done!';
   }
 }
 
-// Storage change listener - more efficient than polling
+// Storage change listener
 storageListener = (changes, areaName) => {
   if (areaName !== 'sync' && areaName !== 'local') return;
   
-  // If blocking disabled, go back
   if (changes.blockingEnabled?.newValue === false) {
     cleanup();
     window.history.back();
     return;
   }
   
-  // Update timer if end time changed
   if (changes.blockingEndTime !== undefined) {
     currentEndTime = changes.blockingEndTime.newValue;
     updateTimerDisplay();
@@ -85,23 +82,16 @@ async function initialize() {
       return;
     }
     
-    timerEl.style.display = 'block';
     currentEndTime = result.blockingEndTime || null;
     updateTimerDisplay();
     
-    // Start interval for countdown (only updates display, doesn't poll storage)
     timerInterval = setInterval(updateTimerDisplay, 1000);
-    
-    // Listen for storage changes
     chrome.storage.onChanged.addListener(storageListener);
   } catch (e) {
-    // Storage read failed - show infinite timer
-    timerEl.style.display = 'block';
-    timerValueEl.innerHTML = '<span class="timer-infinite">∞ Until you turn it off</span>';
+    timerValueEl.textContent = '∞';
   }
 }
 
-// Cleanup function
 function cleanup() {
   if (timerInterval) {
     clearInterval(timerInterval);
@@ -113,14 +103,12 @@ function cleanup() {
   }
 }
 
-// Clean up on page unload
 window.addEventListener('beforeunload', cleanup);
 
-// Open extension settings when clicking branding
+// Open extension settings
 document.getElementById('openSettings')?.addEventListener('click', (e) => {
   e.preventDefault();
   chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') }).catch(() => {});
 });
 
-// Initialize
 initialize();
