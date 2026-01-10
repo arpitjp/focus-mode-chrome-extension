@@ -802,11 +802,13 @@ async function checkSupportPrompt() {
 }
 
 function showSupportModal() {
+  document.querySelector('.container').style.display = 'none';
   supportModal.style.display = 'flex';
 }
 
 function hideSupportModal() {
   supportModal.style.display = 'none';
+  document.querySelector('.container').style.display = 'block';
 }
 
 // Rate button clicked - save BEFORE opening link

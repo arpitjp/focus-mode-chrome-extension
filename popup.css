@@ -787,89 +787,61 @@ h1 {
 }
 /* Support Modal */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(12, 12, 20, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-  animation: fadeIn 0.2s ease;
+  padding: 20px;
+  min-width: 320px;
+  max-width: 320px;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+/* Hide container when modal is active */
+body:has(.modal-overlay[style*="flex"]) .container {
+  display: none !important;
 }
 
 .modal {
-  background: var(--surface);
-  border-radius: 10px;
-    padding: 14px 16px 12px;
-    max-width: 240px;
+  background: transparent;
+  max-width: 260px;
   width: 100%;
   text-align: center;
-  border: 1px solid var(--border);
-  animation: slideUp 0.2s ease;
-}
-
-@keyframes slideUp {
-  from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-  
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
 }
 
 .modal-icon {
-  font-size: 18px;
-    margin-bottom: 4px;
+  font-size: 20px;
+  margin-bottom: 12px;
 }
 
 .modal-title {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 3px;
+  margin-bottom: 8px;
 }
 
 .modal-text {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.4;
-    margin-bottom: 10px;
+  line-height: 1.5;
+  margin-bottom: 20px;
 }
 
 .modal-actions {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-    margin-bottom: 8px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .modal-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-    padding: 7px 10px;
-    border-radius: 6px;
-    font-size: 10px;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.15s ease;
@@ -901,18 +873,18 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-    padding-top: 6px;
-  border-top: 1px solid var(--border);
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .modal-link {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 9px;
+  font-size: 10px;
   cursor: pointer;
-  padding: 2px 0;
+  padding: 4px 0;
   transition: color 0.15s ease;
 }
 
@@ -921,6 +893,6 @@ h1 {
 }
 
 .modal-separator {
-  color: var(--border);
+  color: var(--border-subtle);
   font-size: 10px;
 }
