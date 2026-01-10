@@ -330,6 +330,10 @@ ensureOffscreen();
 // Play completion chime
 async function playChime() {
   try {
+    // Check if chime is muted
+    const result = await chrome.storage.sync.get(['chimeMuted']);
+    if (result.chimeMuted) return;
+    
     await ensureOffscreen();
     chrome.runtime.sendMessage({ action: 'offscreen_playChime' }).catch(() => {});
   } catch (e) {

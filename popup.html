@@ -11,11 +11,21 @@
     <header class="header">
       <img src="icon48.png" alt="Focus Mode" class="header-icon">
       <h1>Focus Mode</h1>
-      <button id="statsHeaderBtn" class="header-stats-btn" title="View stats">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 20V10M12 20V4M6 20v-6" />
-        </svg>
-      </button>
+      <div class="header-actions">
+        <button id="chimeMuteBtn" class="header-action-btn" title="Mute end chime">
+          <svg id="chimeUnmutedIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <svg id="chimeMutedIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+        <button id="statsHeaderBtn" class="header-action-btn" title="View stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 20V10M12 20V4M6 20v-6" />
+          </svg>
+        </button>
+      </div>
     </header>
     
     <div class="toggle-section">

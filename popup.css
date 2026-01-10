@@ -76,27 +76,42 @@ img {
   flex-shrink: 0;
 }
 
-.header-stats-btn {
+.header-actions {
   position: absolute;
   right: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.header-action-btn {
   background: transparent;
   border: none;
   padding: 6px;
   cursor: pointer;
   color: var(--text-muted);
-  transition: color 0.2s;
+  transition: all 0.2s;
   border-radius: 6px;
 }
 
-.header-stats-btn:hover {
+.header-action-btn:hover {
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.05);
 }
 
-.header-stats-btn svg {
-  width: 18px;
-  height: 18px;
+.header-action-btn svg {
+  width: 16px;
+  height: 16px;
   display: block;
+}
+
+.header-action-btn.muted {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.header-action-btn.muted:hover {
+  opacity: 0.8;
 }
 
 .stats-bar {
