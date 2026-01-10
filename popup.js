@@ -52,6 +52,9 @@ function updateChimeIcon(muted) {
 // Load initial mute state (use local storage - more reliable)
 chrome.storage.local.get(['chimeMuted']).then(result => {
   updateChimeIcon(result.chimeMuted || false);
+}).catch(() => {
+  // Storage read failed - default to unmuted
+  updateChimeIcon(false);
 });
 
 chimeMuteBtn.addEventListener('click', async () => {
