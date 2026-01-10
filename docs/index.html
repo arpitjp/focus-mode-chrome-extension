@@ -160,12 +160,17 @@
       font-size: 56px;
       font-weight: 800;
       letter-spacing: -2px;
-      background: linear-gradient(135deg, #5b7fff 0%, #a78bfa 50%, #5b7fff 100%);
-      background-size: 200% 200%;
-      animation: gradientShift 4s ease infinite;
+      background: linear-gradient(90deg, #5b7fff 0%, #a78bfa 25%, #fff 50%, #a78bfa 75%, #5b7fff 100%);
+      background-size: 400% 100%;
+      animation: textShimmer 8s ease-in-out infinite;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+    }
+
+    @keyframes textShimmer {
+      0%, 100% { background-position: 100% 50%; }
+      50% { background-position: 0% 50%; }
     }
 
     @keyframes gradientShift {
@@ -237,6 +242,24 @@
 
     .btn-primary:hover::before {
       opacity: 1;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 17px;
+      background: linear-gradient(135deg, #5b7fff, #a78bfa, #5b7fff);
+      background-size: 200% 200%;
+      animation: glowPulse 3s ease-in-out infinite;
+      z-index: -1;
+      opacity: 0.5;
+      filter: blur(15px);
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
     }
 
     .btn-secondary {
@@ -343,11 +366,19 @@
     .screenshot-popup {
       max-width: 320px;
       transform: translateY(var(--parallax-y, 0)) rotate(var(--parallax-rotate, 0deg));
+      animation: floatScreenshot 6s ease-in-out infinite;
     }
 
     .screenshot-stats {
       max-width: 560px;
       transform: translateY(var(--parallax-y2, 0)) rotate(calc(var(--parallax-rotate2, 0deg) * -1));
+      animation: floatScreenshot 6s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    @keyframes floatScreenshot {
+      0%, 100% { transform: translateY(var(--parallax-y, 0)) rotate(var(--parallax-rotate, 0deg)); }
+      50% { transform: translateY(calc(var(--parallax-y, 0px) - 15px)) rotate(var(--parallax-rotate, 0deg)); }
     }
 
 
@@ -650,25 +681,92 @@
     /* Scroll animations */
     .reveal {
       opacity: 0;
-      transform: translateY(40px);
       transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal:not(.feature-card) {
+      transform: translateY(40px);
     }
 
     .reveal.visible {
       opacity: 1;
+    }
+
+    .reveal.visible:not(.feature-card) {
       transform: translateY(0);
     }
 
-    /* Staggered animations for feature cards */
+    /* Staggered animations for feature cards - alternating sides */
     .feature-card:nth-child(1) { transition-delay: 0s; }
     .feature-card:nth-child(2) { transition-delay: 0.1s; }
     .feature-card:nth-child(3) { transition-delay: 0.2s; }
     .feature-card:nth-child(4) { transition-delay: 0.3s; }
     .feature-card:nth-child(5) { transition-delay: 0.4s; }
     .feature-card:nth-child(6) { transition-delay: 0.5s; }
+
+    .feature-card:nth-child(odd) {
+      transform: translateX(-30px);
+    }
+    .feature-card:nth-child(even) {
+      transform: translateX(30px);
+    }
+    .feature-card.visible {
+      transform: translateX(0) !important;
+    }
+
+    /* Scroll progress bar */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #5b7fff, #a78bfa);
+      width: 0%;
+      z-index: 9999;
+      transition: width 0.1s ease-out;
+    }
+
+    /* Animated underline on section titles */
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #5b7fff, #a78bfa);
+      margin: 16px auto 0;
+      border-radius: 2px;
+      animation: expandWidth 0.8s ease forwards;
+      transform-origin: center;
+    }
+
+    @keyframes expandWidth {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    /* Typewriter effect for tagline strong text */
+    .hero-tagline strong {
+      position: relative;
+    }
+    .hero-tagline strong::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
   </style>
 </head>
 <body>
+  <div class="scroll-progress" id="scrollProgress"></div>
   <div class="bg-glow"></div>
   
   <!-- Floating orbs -->
@@ -841,11 +939,19 @@
     const screenshotStats = document.querySelector('.screenshot-stats');
     const heroContent = document.querySelector('.hero-content');
     const bgGlow = document.querySelector('.bg-glow');
+    const scrollProgress = document.getElementById('scrollProgress');
     
     // Scroll-based parallax
     const handleScroll = () => {
       const scrolled = window.scrollY;
       const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight - windowHeight;
+      
+      // Scroll progress bar
+      if (scrollProgress) {
+        const progress = (scrolled / docHeight) * 100;
+        scrollProgress.style.width = `${progress}%`;
+      }
       
       // Multi-layer screenshot parallax - different speeds create depth
       if (screenshotPopup) {
@@ -862,10 +968,12 @@
         screenshotStats.style.setProperty('--parallax-rotate2', `${rotation2}deg`);
       }
       
-      // Hero content stays mostly fixed - creates layered effect
+      // Hero content fades and moves with scroll
       if (heroContent) {
-        const y = scrolled * 0.1;
+        const y = scrolled * 0.15;
+        const opacity = Math.max(1 - scrolled * 0.001, 0.3);
         heroContent.style.transform = `translateY(${y}px)`;
+        heroContent.style.opacity = opacity;
       }
       
       // Background glow parallax
@@ -873,11 +981,13 @@
         bgGlow.style.transform = `translateY(${scrolled * 0.05}px)`;
       }
       
-      // Reveal animations
-      document.querySelectorAll('.reveal').forEach(el => {
+      // Reveal animations with stagger
+      document.querySelectorAll('.reveal').forEach((el, index) => {
         const rect = el.getBoundingClientRect();
-        if (rect.top < windowHeight - 80) {
-          el.classList.add('visible');
+        if (rect.top < windowHeight - 60) {
+          setTimeout(() => {
+            el.classList.add('visible');
+          }, el.classList.contains('feature-card') ? 0 : index * 50);
         }
       });
     };
