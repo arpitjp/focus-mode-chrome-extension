@@ -800,7 +800,7 @@
       .screenshot-wrapper {
         flex-direction: column;
         align-items: center;
-        gap: 60px;
+        gap: 24px;
       }
 
       .screenshot-popup,
@@ -917,12 +917,10 @@
         animation: none;
       }
 
-      /* Mobile parallax - simpler vertical-only movement */
-      .screenshot-popup {
-        transform: translateY(var(--parallax-y, 0)) !important;
-      }
+      /* Disable parallax on mobile - stacked images don't work well with parallax */
+      .screenshot-popup,
       .screenshot-stats {
-        transform: translateY(var(--parallax-y2, 0)) !important;
+        transform: none !important;
       }
 
       .screenshot-wrapper {
@@ -1299,19 +1297,17 @@
         scrollProgress.style.width = `${progress}%`;
       }
       
-      // Multi-layer screenshot parallax - different speeds create depth
-      // Reduce parallax on mobile to prevent overlap
-      const parallaxMultiplier1 = isMobile ? 0.15 : 0.4;
-      const parallaxMultiplier2 = isMobile ? 0.08 : 0.2;
-      
-      if (screenshotPopup) {
-          const y1 = scrolled * parallaxMultiplier1;
-          screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
-      }
-      
-      if (screenshotStats) {
-          const y2 = scrolled * parallaxMultiplier2;
-          screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
+      // Multi-layer screenshot parallax - desktop only
+      if (!isMobile) {
+        if (screenshotPopup) {
+            const y1 = scrolled * 0.4;
+            screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
+        }
+        
+        if (screenshotStats) {
+            const y2 = scrolled * 0.2;
+            screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
+        }
       }
       
       // Hero content fades and moves with scroll
