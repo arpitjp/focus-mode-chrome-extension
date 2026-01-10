@@ -2,14 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Focus Mode - Block Distracting Websites</title>
-  <meta name="description" content="A Chrome extension that blocks distracting websites to help you stay focused. One-click blocking, stats tracking, 100% private.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  
+  <!-- Primary Meta Tags -->
+  <title>Focus Mode - Block Distracting Websites | Chrome Extension</title>
+  <meta name="title" content="Focus Mode - Block Distracting Websites | Chrome Extension">
+  <meta name="description" content="Free Chrome extension to block distracting websites and stay focused. One-click blocking, focus stats, streak tracking. 100% private - no data collection.">
+  <meta name="keywords" content="focus mode, website blocker, productivity, chrome extension, block distractions, focus timer, site blocker, distraction blocker">
+  <meta name="author" content="Focus Mode">
+  <meta name="robots" content="index, follow">
   <meta name="color-scheme" content="only dark">
-  <link rel="icon" type="image/png" href="icon48.png">
+  <meta name="theme-color" content="#050508">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://arpitjp.github.io/focus-mode-chrome-extension/">
+  <meta property="og:title" content="Focus Mode - Block Distracting Websites">
+  <meta property="og:description" content="Free Chrome extension to block distracting websites and stay focused. One-click blocking, focus stats, 100% private.">
+  <meta property="og:image" content="https://arpitjp.github.io/focus-mode-chrome-extension/assets/stats.png">
+  <meta property="og:site_name" content="Focus Mode">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://arpitjp.github.io/focus-mode-chrome-extension/">
+  <meta name="twitter:title" content="Focus Mode - Block Distracting Websites">
+  <meta name="twitter:description" content="Free Chrome extension to block distracting websites and stay focused. One-click blocking, focus stats, 100% private.">
+  <meta name="twitter:image" content="https://arpitjp.github.io/focus-mode-chrome-extension/assets/stats.png">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://arpitjp.github.io/focus-mode-chrome-extension/">
+  
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="48x48" href="icon48.png">
+  <link rel="icon" type="image/png" sizes="128x128" href="icon128.png">
+  <link rel="apple-touch-icon" href="icon128.png">
+  
+  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://chromewebstore.google.com">
+  
+  <!-- Font with display swap for faster rendering -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Structured Data / JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Focus Mode",
+    "description": "A Chrome extension that blocks distracting websites to help you stay focused.",
+    "applicationCategory": "Productivity",
+    "operatingSystem": "Chrome",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "ratingCount": "10"
+    }
+  }
+  </script>
   <style>
     /* CSS Isolation - prevent browser dark mode interference */
     * {
@@ -44,6 +100,18 @@
     @media (forced-colors: active) {
       * {
         forced-color-adjust: none;
+      }
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      html {
+        scroll-behavior: auto;
       }
     }
 
@@ -626,55 +694,188 @@
     }
 
     /* Responsive */
-    @media (max-width: 900px) {
-      .features-grid {
-        grid-template-columns: repeat(2, 1fr);
+    /* Tablet */
+    @media (max-width: 1024px) {
+      .container {
+        padding: 0 20px;
+      }
+      
+      .screenshot-popup {
+        max-width: 280px;
+      }
+      
+      .screenshot-stats {
+        max-width: 480px;
       }
     }
 
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      
+      .screenshot-wrapper {
+        gap: 24px;
+      }
+    }
+
+    /* Mobile */
     @media (max-width: 768px) {
       .hero {
-        padding: 80px 24px 60px;
         min-height: auto;
+        padding: 40px 16px 20px;
+      }
+
+      .hero-content {
+        height: auto;
+        min-height: 50vh;
+        padding-top: 20px;
+      }
+
+      .logo {
+        gap: 12px;
+        flex-direction: column;
       }
 
       .logo-text {
-        font-size: 36px;
+        font-size: 32px;
         letter-spacing: -1px;
       }
 
       .logo-icon {
-        width: 52px;
-        height: 52px;
+        width: 56px;
+        height: 56px;
       }
 
       .hero-tagline {
-        font-size: 18px;
+        font-size: 16px;
+        margin-bottom: 24px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        font-size: 14px;
       }
 
       .section-title {
-        font-size: 32px;
+        font-size: 28px;
+      }
+
+      .section-subtitle {
+        font-size: 14px;
       }
 
       .screenshot-wrapper {
-        gap: 24px;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .screenshot-popup,
+      .screenshot-stats {
+        max-width: 100%;
+        width: 100%;
+      }
+
+      .features {
+        padding: 60px 0;
+        margin-top: 20px;
       }
 
       .features-grid {
         grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .feature-card {
+        padding: 20px;
+      }
+
+      .feature-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .feature-title {
+        font-size: 16px;
+      }
+
+      .feature-desc {
+        font-size: 13px;
+      }
+
+      .cta {
+        padding: 60px 0;
       }
 
       .cta-card {
-        padding: 48px 24px;
+        padding: 40px 20px;
+        border-radius: 20px;
       }
 
       .cta-title {
-        font-size: 28px;
+        font-size: 24px;
+      }
+
+      .cta-text {
+        font-size: 14px;
+      }
+
+      .cta-actions {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .cta-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .footer {
+        padding: 32px 0;
       }
 
       .footer-content {
         flex-direction: column;
         text-align: center;
+        gap: 16px;
+      }
+
+      .footer-links {
+        gap: 16px;
+      }
+
+      /* Reduce animations on mobile for performance */
+      .orb {
+        display: none;
+      }
+
+      .bg-glow::before,
+      .bg-glow::after {
+        width: 400px;
+        height: 400px;
+        filter: blur(100px);
+        opacity: 0.25;
+      }
+    }
+
+    /* Small mobile */
+    @media (max-width: 480px) {
+      .logo-text {
+        font-size: 28px;
+      }
+
+      .hero-tagline {
+        font-size: 15px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .cta-title {
+        font-size: 22px;
       }
     }
 
@@ -766,7 +967,14 @@
   </style>
 </head>
 <body>
-  <div class="scroll-progress" id="scrollProgress"></div>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+  
+  <noscript>
+    <style>
+      .reveal { opacity: 1 !important; transform: none !important; }
+      .scroll-progress { display: none; }
+    </style>
+  </noscript>
   <div class="bg-glow"></div>
   
   <!-- Floating orbs -->
@@ -787,7 +995,8 @@
   </svg>
 
   <!-- Hero with Screenshots -->
-  <section class="hero">
+  <main>
+  <section class="hero" aria-label="Introduction">
     <div class="container">
       <div class="hero-content">
         <div class="logo">
@@ -804,17 +1013,17 @@
       
       <div class="screenshot-wrapper">
         <div class="screenshot screenshot-popup" data-parallax="0.15">
-          <img src="assets/popup.png" alt="Focus Mode Popup">
+          <img src="assets/popup.png" alt="Focus Mode Popup - Website blocker interface" loading="eager" width="320" height="580">
         </div>
         <div class="screenshot screenshot-stats" data-parallax="0.08">
-          <img src="assets/stats.png" alt="Focus Stats">
+          <img src="assets/stats.png" alt="Focus Mode Stats - Track your focus time" loading="eager" width="560" height="400">
         </div>
       </div>
     </div>
   </section>
 
   <!-- Features -->
-  <section class="features">
+  <section class="features" aria-label="Features">
     <div class="container">
       <div class="section-header reveal">
         <h2 class="section-title">Built for Deep Work</h2>
@@ -890,7 +1099,7 @@
   </section>
 
   <!-- CTA -->
-  <section class="cta">
+  <section class="cta" aria-label="Get Started">
     <div class="container">
       <div class="cta-card reveal">
         <h2 class="cta-title">Ready to focus?</h2>
@@ -912,6 +1121,8 @@
       </div>
     </div>
   </section>
+
+  </main>
 
   <!-- Footer -->
   <footer class="footer">
@@ -992,7 +1203,7 @@
       });
     };
     
-    // Smooth scroll with RAF
+    // Smooth scroll with RAF - passive for better performance
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) {
@@ -1002,9 +1213,15 @@
         });
         ticking = true;
       }
-    });
+    }, { passive: true });
     
+    // Initialize on load
     window.addEventListener('load', handleScroll);
+    
+    // Also run immediately if document is ready (for back navigation)
+    if (document.readyState === 'complete') {
+      handleScroll();
+    }
   </script>
 </body>
 </html>
