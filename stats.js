@@ -67,10 +67,26 @@ async function loadDummyData() {
   return stats;
 }
 
-// Clear dummy data
+// Clear all data except blocked sites rules
 async function clearDummyData() {
-  await chrome.storage.sync.remove(['stats']);
-  console.log('🧹 Cleared stats data');
+  await chrome.storage.sync.remove([
+    'stats',
+    'supportPrompt',
+    'blockingEnabled',
+    'blockingEndTime',
+    'blockingDuration',
+    'blockingStartTime',
+    'lastDurationOption',
+    'lastCustomMinutes'
+  ]);
+  await chrome.storage.local.remove([
+    'blockingEnabled',
+    'blockingEndTime',
+    'blockingDuration',
+    'blockingStartTime',
+    'mutedByExtension'
+  ]);
+  console.log('🧹 Cleared all data (kept blocked sites)');
 }
 
 // Back link handler

@@ -84,11 +84,38 @@
         </button>
         <input type="file" id="importFile" accept=".json" style="display: none;">
       </div>
-      <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="coffee-link" title="Support development">
-        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="20" style="vertical-align: middle;">
-      </a>
+      <div class="support-links">
+        <a href="https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn/reviews" target="_blank"
+          class="rate-link" title="Rate extension">Rate</a>
+        <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="coffee-link" title="Buy me a coffee">
+          <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="18">
+        </a>
+      </div>
     </footer>
   </div>
+<!-- Support Prompt Modal -->
+<div class="modal-overlay" id="supportModal" style="display: none;">
+  <div class="modal">
+    <div class="modal-icon">✨</div>
+    <h3 class="modal-title">Enjoying Focus Mode?</h3>
+    <p class="modal-text">A quick rating helps others discover this tool. Thank you for your support!</p>
+    <div class="modal-actions">
+      <a href="https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn/reviews"
+        target="_blank" class="modal-btn primary" id="rateBtn">
+        Rate on Chrome Store
+      </a>
+      <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="modal-btn secondary" id="coffeeBtn">
+        Buy Me A Coffee
+      </a>
+    </div>
+    <div class="modal-dismiss">
+      <button class="modal-link" id="remindLaterBtn">Later</button>
+      <span class="modal-separator">·</span>
+      <button class="modal-link" id="dontShowBtn">Don't show again</button>
+    </div>
+  </div>
+</div>
+
   <script src="popup.js"></script>
 </body>
 </html>

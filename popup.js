@@ -761,6 +761,127 @@ chrome.management.getSelf((info) => {
   }
 });
 
+// Support prompt modal logic
+const PROMPT_THRESHOLD_MINUTES = 90;
+const supportModal = document.getElementById('supportModal');
+const rateBtn = document.getElementById('rateBtn');
+const coffeeBtn = document.getElementById('coffeeBtn');
+const remindLaterBtn = document.getElementById('remindLaterBtn');
+const dontShowBtn = document.getElementById('dontShowBtn');
+
+async function checkSupportPrompt() {
+  try {
+    const result = await chrome.storage.sync.get(['stats', 'supportPrompt']);
+    const stats = result.stats || { totalMinutes: 0 };
+    const prompt = result.supportPrompt || {};
+    
+    // Don't show if user dismissed permanently, already rated, or already supported
+    if (prompt.dismissed || prompt.rated || prompt.supported) {
+      return;
+    }
+    
+    const totalMinutes = stats.totalMinutes || 0;
+    const lastPromptAt = prompt.lastPromptAt || 0;
+    const minutesSinceLastPrompt = totalMinutes - lastPromptAt;
+    
+    // Show prompt if:
+    // 1. First time: total >= 90 minutes and never prompted before
+    // 2. Remind later: 90 more minutes since last prompt
+    const shouldShow = (lastPromptAt === 0 && totalMinutes >= PROMPT_THRESHOLD_MINUTES) ||
+                       (lastPromptAt > 0 && minutesSinceLastPrompt >= PROMPT_THRESHOLD_MINUTES);
+    
+    if (shouldShow) {
+      showSupportModal();
+    }
+  } catch (e) {
+    // Non-critical
+  }
+}
+
+function showSupportModal() {
+  supportModal.style.display = 'flex';
+}
+
+function hideSupportModal() {
+  supportModal.style.display = 'none';
+}
+
+// Rate button clicked - save BEFORE opening link
+rateBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+  try {
+    const result = await chrome.storage.sync.get(['supportPrompt', 'stats']);
+    const stats = result.stats || { totalMinutes: 0 };
+    await chrome.storage.sync.set({
+      supportPrompt: {
+        ...result.supportPrompt,
+        rated: true,
+        ratedAt: Date.now(),
+        lastPromptAt: stats.totalMinutes || 0
+      }
+    });
+  } catch (e) {}
+  hideSupportModal();
+  // Open link after saving
+  window.open(rateBtn.href, '_blank');
+});
+
+// Coffee button clicked - save BEFORE opening link
+coffeeBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+  try {
+    const result = await chrome.storage.sync.get(['supportPrompt', 'stats']);
+    const stats = result.stats || { totalMinutes: 0 };
+    await chrome.storage.sync.set({
+      supportPrompt: {
+        ...result.supportPrompt,
+        supported: true,
+        supportedAt: Date.now(),
+        lastPromptAt: stats.totalMinutes || 0
+      }
+    });
+  } catch (e) {}
+  hideSupportModal();
+  // Open link after saving
+  window.open(coffeeBtn.href, '_blank');
+});
+
+// Remind later
+remindLaterBtn.addEventListener('click', async () => {
+  try {
+    const result = await chrome.storage.sync.get(['stats']);
+    const stats = result.stats || { totalMinutes: 0 };
+    await chrome.storage.sync.set({
+      supportPrompt: {
+        lastPromptAt: stats.totalMinutes || 0
+      }
+    });
+  } catch (e) {}
+  hideSupportModal();
+});
+
+// Don't show again
+dontShowBtn.addEventListener('click', async () => {
+  try {
+    await chrome.storage.sync.set({
+      supportPrompt: {
+        dismissed: true,
+        dismissedAt: Date.now()
+      }
+    });
+  } catch (e) {}
+  hideSupportModal();
+});
+
+// Close modal on overlay click
+supportModal.addEventListener('click', (e) => {
+  if (e.target === supportModal) {
+    // Treat as remind later
+    remindLaterBtn.click();
+  }
+});
+
 // Initialize
 loadState();
 displayStatsHighlight();
+checkSupportPrompt();

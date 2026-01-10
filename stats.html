@@ -168,13 +168,13 @@
     }
 
     .nav-btn {
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       padding: 0;
-      background: var(--bg-tertiary);
-      border: none;
-      border-radius: 6px;
-      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: var(--text-primary);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -183,18 +183,19 @@
     }
 
     .nav-btn:hover:not(:disabled) {
-      background: var(--accent-glow);
-      color: var(--accent);
+      background: rgba(91, 127, 255, 0.2);
+      border-color: rgba(91, 127, 255, 0.4);
+      color: #a0b4ff;
     }
 
     .nav-btn:disabled {
-      opacity: 0.3;
+      opacity: 0.2;
       cursor: not-allowed;
     }
 
     .nav-btn svg {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
     }
 
     .chart-period {
@@ -413,6 +414,40 @@
       margin-bottom: 24px;
     }
 
+    .support-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rate-link {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      opacity: 0.85;
+      transition: all 0.15s ease;
+    }
+
+    .rate-link::before {
+      content: '';
+      width: 0;
+      overflow: hidden;
+      transition: width 0.15s ease;
+    }
+
+    .rate-link:hover {
+      opacity: 1;
+      color: var(--text-secondary);
+    }
+
+    .rate-link:hover::before {
+      content: '☆ ';
+      width: 16px;
+    }
+
     .coffee-link {
       display: flex;
       align-items: center;
@@ -443,9 +478,12 @@
         </svg>
         Back to Focus Mode
       </a>
-      <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="coffee-link" title="Support development">
-        <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee">
-      </a>
+      <div class="support-links">
+        <a href="https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn/reviews" target="_blank" class="rate-link" title="Rate extension">Rate</a>
+        <a href="https://buymeacoffee.com/arpitjpn" target="_blank" class="coffee-link" title="Buy me a coffee">
+          <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee">
+        </a>
+      </div>
     </div>
 
     <header class="header">
