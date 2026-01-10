@@ -304,11 +304,25 @@
     // Kill all media immediately
     killAllMedia();
     
-    // Keep killing media periodically (reduced frequency)
-    mediaKillerInterval = setInterval(killAllMedia, 2000);
+    // Kill a few more times to catch delayed media, then stop
+    // No need for continuous monitoring - overlay blocks interaction and tab is muted
+    let killCount = 0;
+    mediaKillerInterval = setInterval(() => {
+      killAllMedia();
+      killCount++;
+      if (killCount >= 3) {
+        clearInterval(mediaKillerInterval);
+        mediaKillerInterval = null;
+      }
+    }, 1000);
     
-    // Watch for new media elements - only watch body, not entire document
-    mediaObserver = new MutationObserver(() => killAllMedia());
+    // One-time mutation observer - kill media once if DOM changes, then disconnect
+    // This catches any media that loads after initial kill
+    mediaObserver = new MutationObserver(() => {
+      killAllMedia();
+      mediaObserver.disconnect();
+      mediaObserver = null;
+    });
     if (document.body) {
       mediaObserver.observe(document.body, { childList: true, subtree: true });
     }
