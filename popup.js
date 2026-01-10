@@ -162,46 +162,82 @@ async function displayStatsHighlight() {
       currentSessionMinutes = Math.floor((Date.now() - result.blockingStartTime) / 60000);
     }
     
-    const today = new Date().toISOString().split('T')[0];
-    const todayMinutes = (stats.daily[today] || 0) + currentSessionMinutes;
+    const today = new Date();
+    const todayKey = today.toISOString().split('T')[0];
+    const todayMinutes = (stats.daily[todayKey] || 0) + currentSessionMinutes;
     const totalMinutes = (stats.totalMinutes || 0) + currentSessionMinutes;
     
+    // Calculate week minutes (past 7 days)
     let weekMinutes = 0;
+    let weekDaysWithData = 0;
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     for (const [date, mins] of Object.entries(stats.daily)) {
       if (new Date(date) >= weekAgo) {
         weekMinutes += mins;
+        if (mins > 0) weekDaysWithData++;
       }
     }
     weekMinutes += currentSessionMinutes;
+    if (currentSessionMinutes > 0 && !stats.daily[todayKey]) weekDaysWithData++;
     
-    const focusDays = Object.keys(stats.daily).filter(d => stats.daily[d] > 0).length;
-    const avgDaily = focusDays > 0 ? Math.round(totalMinutes / focusDays) : 0;
+    // Calculate month minutes (past 30 days)
+    let monthMinutes = 0;
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    for (const [date, mins] of Object.entries(stats.daily)) {
+      if (new Date(date) >= monthAgo) {
+        monthMinutes += mins;
+      }
+    }
+    monthMinutes += currentSessionMinutes;
     
+    // Total days with focus
+    const focusDays = Object.keys(stats.daily).filter(d => stats.daily[d] > 0).length + 
+                      (currentSessionMinutes > 0 && !stats.daily[todayKey] ? 1 : 0);
+    
+    // Daily average based on past week (not all-time)
+    const avgDaily = weekDaysWithData > 0 ? Math.round(weekMinutes / weekDaysWithData) : 0;
+    
+    // Calculate streak
+    const currentStreak = calculateStreak(stats);
+    
+    // Build all possible highlights (equal priority - randomly choose one)
     const highlights = [];
     
-    // Stats highlights with celebration
-    if (todayMinutes >= 60) {
-      highlights.push({ text: `Focused for <strong>${formatStatsTime(todayMinutes)}</strong> today 🎉`, priority: 2 });
-    } else if (todayMinutes > 0) {
-      highlights.push({ text: `Focused for <strong>${todayMinutes} min</strong> today 🎉`, priority: 3 });
+    // Today
+    if (todayMinutes > 0) {
+      highlights.push(`💪 Crushed <strong>${formatStatsTime(todayMinutes)}</strong> today`);
     }
     
-    if (weekMinutes >= 60) {
-      highlights.push({ text: `Focused for <strong>${formatStatsTime(weekMinutes)}</strong> this week 🎉`, priority: 3 });
+    // This week
+    if (weekMinutes > 0) {
+      highlights.push(`🚀 <strong>${formatStatsTime(weekMinutes)}</strong> this week`);
     }
     
-    if (totalMinutes >= 600) {
-      highlights.push({ text: `Focused for <strong>${formatStatsTime(totalMinutes)}</strong> total 🎉`, priority: 3 });
+    // This month
+    if (monthMinutes > 0) {
+      highlights.push(`🏆 <strong>${formatStatsTime(monthMinutes)}</strong> this month`);
     }
     
-    if (focusDays >= 7) {
-      highlights.push({ text: `Focused for <strong>${focusDays} days</strong> 🎉`, priority: 4 });
+    // Total
+    if (totalMinutes > 0) {
+      highlights.push(`⭐ <strong>${formatStatsTime(totalMinutes)}</strong> total focus`);
     }
     
-    if (avgDaily >= 30 && focusDays >= 3) {
-      highlights.push({ text: `Focused <strong>${formatStatsTime(avgDaily)}</strong> avg per day 🎉`, priority: 4 });
+    // Current streak (only if > 1 day)
+    if (currentStreak > 1) {
+      highlights.push(`🔥 <strong>${currentStreak} day</strong> streak!`);
+    }
+    
+    // Total days active
+    if (focusDays > 0) {
+      highlights.push(`🎯 <strong>${focusDays}</strong> days of focus`);
+    }
+    
+    // Daily average (past week)
+    if (avgDaily > 0 && weekDaysWithData >= 2) {
+      highlights.push(`📈 <strong>${formatStatsTime(avgDaily)}</strong> daily avg`);
     }
     
     // Only show stats if user has completed at least one focus session AND blocking is OFF
@@ -221,12 +257,9 @@ async function displayStatsHighlight() {
     }
     
     if (highlights.length > 0) {
-      // Show actual stats - use neutral language, no gamification
-      highlights.sort((a, b) => a.priority - b.priority);
-      const topPriority = highlights[0].priority;
-      const topHighlights = highlights.filter(h => h.priority === topPriority);
-      const chosen = topHighlights[Math.floor(Math.random() * topHighlights.length)];
-      statsText.innerHTML = chosen.text;
+      // Randomly pick one highlight
+      const chosen = highlights[Math.floor(Math.random() * highlights.length)];
+      statsText.innerHTML = chosen;
       statsBar.style.display = 'flex';
     } else if (hasCompletedSession) {
       // Has some history but nothing notable to show

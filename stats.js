@@ -447,13 +447,11 @@ function updateStats() {
   
   // Calculate all-time stats
   let totalDays = 0;
-  let totalMinutesFromDaily = currentSessionMinutes;
   let bestDayMinutes = getMinutesForDate(today);
   
   for (const [date, minutes] of Object.entries(statsData.daily)) {
     if (minutes > 0) {
       totalDays++;
-      totalMinutesFromDaily += minutes;
       const dateMinutes = getMinutesForDate(date);
       if (dateMinutes > bestDayMinutes) {
         bestDayMinutes = dateMinutes;
@@ -467,8 +465,29 @@ function updateStats() {
     totalDays++;
   }
   
-  // Calculate average
-  const avgMinutes = totalDays > 0 ? Math.round(totalMinutesFromDaily / totalDays) : 0;
+  // Calculate weekly average (past 7 days only)
+  let weekMinutes = 0;
+  let weekDaysWithData = 0;
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  
+  for (const [date, minutes] of Object.entries(statsData.daily)) {
+    if (new Date(date) >= weekAgo && minutes > 0) {
+      weekMinutes += minutes;
+      weekDaysWithData++;
+    }
+  }
+  
+  // Include today's current session if not already in daily
+  if (todayMinutes > 0 && !statsData.daily[today]) {
+    weekMinutes += currentSessionMinutes;
+    weekDaysWithData++;
+  } else if (statsData.daily[today]) {
+    // Add current session minutes to today's stored value
+    weekMinutes += currentSessionMinutes;
+  }
+  
+  const avgMinutes = weekDaysWithData > 0 ? Math.round(weekMinutes / weekDaysWithData) : 0;
   
   // Calculate streaks
   const currentStreak = calculateStreak();

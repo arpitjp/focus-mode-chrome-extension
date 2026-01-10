@@ -720,7 +720,6 @@ h1 {
   text-decoration: none;
   font-size: 9px;
   font-weight: 500;
-  font-style: italic;
   color: var(--text-primary);
   opacity: 0.55;
   transition: all 0.15s ease;
