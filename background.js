@@ -101,6 +101,16 @@ async function initialize() {
   if (initialized) return;
   initialized = true;
   
+  // Clear all existing rules first to ensure clean state (removes any old redirect rules)
+  try {
+    const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
+    if (existingRules.length > 0) {
+      await chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: existingRules.map(r => r.id)
+      });
+    }
+  } catch (e) {}
+  
   await updateBlockingRules();
   await checkBlockingTimer();
   await reblockTabsAfterReload();
@@ -188,14 +198,6 @@ async function reblockTabsAfterReload() {
     
     for (const tab of tabs) {
       if (!tab.url || !tab.id) continue;
-      
-      // Refresh our own blocked.html pages that may have become invalid after extension reload
-      if (tab.url.includes('blocked.html') && tab.url.includes('chrome-extension://')) {
-        // Reload to restore the blocked page
-        chrome.tabs.reload(tab.id).catch(() => {});
-        continue;
-      }
-      
       if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) continue;
       
       if (!enabled || blockedSites.length === 0) continue;
@@ -327,80 +329,16 @@ async function updateBlockingRules(syncTabs = false) {
     
     await updateBadge(enabled);
 
-    // Build the rules array
-    const rules = [];
-    if (enabled && blockedSites.length > 0) {
-      let ruleId = RULE_ID_START;
-      const blockedPageUrl = chrome.runtime.getURL('blocked.html');
-
-      for (const site of blockedSites) {
-        let displaySite = site;
-        let urlFilters = [];
-        
-        if (site.startsWith('*')) {
-          // Wildcard: match all subdomains using || anchor
-          const domain = site.substring(1);
-          urlFilters = ['||' + domain];
-          displaySite = domain;
-        } else if (site.startsWith('http://') || site.startsWith('https://')) {
-          // Full URL: exact domain match only (NOT subdomains)
-          // Use | anchor with trailing / to ensure domain boundary (prevents matching youtube.comedy.com)
-          try {
-            const url = new URL(site);
-            const domain = url.hostname.replace(/^www\./, '');
-            urlFilters = [
-              '|https://' + domain + '/',
-              '|http://' + domain + '/',
-              '|https://www.' + domain + '/',
-              '|http://www.' + domain + '/'
-            ];
-            displaySite = domain;
-          } catch {
-            urlFilters = ['||' + site];
-          }
-        } else {
-          // Plain domain (shouldn't happen as normalizeSite adds *)
-          urlFilters = ['||' + site];
-        }
-        
-        // Create rules for each URL filter pattern
-        for (const urlFilter of urlFilters) {
-          // Rule for main page navigation
-          rules.push({
-            id: ruleId++,
-            priority: 1,
-            action: {
-              type: 'redirect',
-              redirect: { url: `${blockedPageUrl}?site=${encodeURIComponent(displaySite)}` }
-            },
-            condition: {
-              urlFilter: urlFilter,
-              resourceTypes: ['main_frame', 'sub_frame']
-            }
-          });
-          
-          // Rule for blocking other resources
-          rules.push({
-            id: ruleId++,
-            priority: 1,
-            action: { type: 'block' },
-            condition: {
-              urlFilter: urlFilter,
-              resourceTypes: ['media', 'image', 'script', 'stylesheet', 'font', 'xmlhttprequest', 'websocket', 'other']
-            }
-          });
-        }
+    // Clear ALL declarativeNetRequest rules - we use content script overlay only
+    // This avoids chrome-extension:// URLs and keeps original URLs intact
+    try {
+      const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
+      if (existingRules.length > 0) {
+        await chrome.declarativeNetRequest.updateDynamicRules({
+          removeRuleIds: existingRules.map(r => r.id)
+        });
       }
-    }
-
-    // Get existing rule IDs and update atomically
-    const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
-    const existingRuleIds = existingRules.map(rule => rule.id);
-
-    await chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: existingRuleIds,
-      addRules: rules
-    });
+    } catch (e) {}
     
     if (syncTabs) {
       await syncOpenTabs(enabled, blockedSites);
@@ -427,12 +365,6 @@ async function syncOpenTabs(blockingEnabled, blockedSites) {
         // Unmute if we muted it
         if (mutedTabs.has(tab.id)) {
           chrome.tabs.update(tab.id, { muted: false }).catch(() => {});
-        }
-        
-        // Go back from blocked pages
-        const isBlockedPage = tab.url.includes('blocked.html') && tab.url.includes(chrome.runtime.id);
-        if (isBlockedPage) {
-          chrome.tabs.goBack(tab.id).catch(() => {});
         }
       }
       // Clear all muted tabs tracking at once

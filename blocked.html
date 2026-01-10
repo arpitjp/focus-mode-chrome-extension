@@ -21,6 +21,15 @@
       color: #f0f0f5;
       position: relative;
       overflow: hidden;
+      color-scheme: dark;
+      isolation: isolate;
+    }
+    
+    img {
+      filter: none !important;
+      -webkit-filter: none !important;
+      opacity: 1 !important;
+      mix-blend-mode: normal !important;
     }
     
     body::before {
@@ -56,13 +65,20 @@
     }
     
     .title {
-      font-size: 28px;
+      font-size: clamp(18px, 4vw, 28px);
       font-weight: 700;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       margin-bottom: 8px;
+      white-space: nowrap;
+    }
+    
+    @media (max-width: 600px) {
+      .title {
+        white-space: normal;
+      }
     }
     
     .site-name {

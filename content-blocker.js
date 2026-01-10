@@ -247,7 +247,24 @@
       });
 
       if (matchedSite) {
-        const displaySite = matchedSite.startsWith('*') ? matchedSite.substring(1) : matchedSite;
+        // Try to extract site name from page title (e.g., "Video - YouTube" -> "YouTube")
+        let displaySite = null;
+        const title = document.title || '';
+        const separators = [' - ', ' | ', ' – ', ' — '];
+        for (const sep of separators) {
+          if (title.includes(sep)) {
+            displaySite = title.split(sep).pop().trim();
+            break;
+          }
+        }
+        // Fallback to hostname without TLD
+        if (!displaySite || displaySite.length > 20) {
+          const hostname = window.location.hostname.replace(/^www\./, '');
+          const parts = hostname.split('.');
+          displaySite = parts.length > 1 ? parts[parts.length - 2] : parts[0];
+        }
+        // Capitalize first letter
+        displaySite = displaySite.charAt(0).toUpperCase() + displaySite.slice(1);
         showBlockedOverlay(displaySite, endTime);
       } else {
         cleanup();
@@ -336,13 +353,19 @@
           text-align: left !important;
         }
         .focus-blocker-title {
-          font-size: 28px !important;
+          font-size: clamp(18px, 4vw, 28px) !important;
           font-weight: 700 !important;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
           -webkit-background-clip: text !important;
           -webkit-text-fill-color: transparent !important;
           background-clip: text !important;
           margin-bottom: 8px !important;
+          white-space: nowrap !important;
+        }
+        @media (max-width: 600px) {
+          .focus-blocker-title {
+            white-space: normal !important;
+          }
         }
         .focus-blocker-site-name {
           color: #fff !important;
