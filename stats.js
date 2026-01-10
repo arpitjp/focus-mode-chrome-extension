@@ -31,7 +31,7 @@ async function loadDummyData() {
   for (let i = 0; i < 60; i++) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    const dateKey = date.toISOString().split('T')[0];
+    const dateKey = getDateKey(date); // Use local timezone
     
     // Skip some days randomly (weekends have lower chance)
     const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -84,7 +84,10 @@ async function clearDummyData() {
     'blockingEndTime',
     'blockingDuration',
     'blockingStartTime',
-    'mutedByExtension'
+    'mutedByExtension',
+    'accumulatedMinutes',
+    'lastHeartbeat',
+    'wasIdle'
   ]);
   console.log('🧹 Cleared all data (kept blocked sites)');
 }
@@ -247,13 +250,15 @@ async function loadStats() {
     // Calculate current session time if blocking is active
     // Includes accumulated minutes from paused segments (idle detection)
     currentSessionMinutes = 0;
-    const accumulated = localResult.accumulatedMinutes || 0;
+    const accumulated = Math.max(0, localResult.accumulatedMinutes || 0);
     
     if (result.blockingEnabled) {
-      if (result.blockingStartTime) {
-        currentSessionMinutes = accumulated + Math.floor((Date.now() - result.blockingStartTime) / 60000);
+      if (result.blockingStartTime && result.blockingStartTime <= Date.now()) {
+        // Valid start time - calculate session minutes (handle clock skew)
+        const sessionMins = Math.max(0, Math.floor((Date.now() - result.blockingStartTime) / 60000));
+        currentSessionMinutes = accumulated + sessionMins;
       } else {
-        // Session paused (idle) - just show accumulated
+        // Session paused (idle) or invalid start time - just show accumulated
         currentSessionMinutes = accumulated;
       }
     }
@@ -565,11 +570,12 @@ setInterval(async () => {
     const localResult = await chrome.storage.local.get(['accumulatedMinutes']);
     
     if (result.blockingEnabled) {
-      const accumulated = localResult.accumulatedMinutes || 0;
+      const accumulated = Math.max(0, localResult.accumulatedMinutes || 0);
       let newSessionMinutes = accumulated;
       
-      if (result.blockingStartTime) {
-        newSessionMinutes = accumulated + Math.floor((Date.now() - result.blockingStartTime) / 60000);
+      if (result.blockingStartTime && result.blockingStartTime <= Date.now()) {
+        const sessionMins = Math.max(0, Math.floor((Date.now() - result.blockingStartTime) / 60000));
+        newSessionMinutes = accumulated + sessionMins;
       }
       
       if (newSessionMinutes !== currentSessionMinutes) {

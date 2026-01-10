@@ -184,12 +184,15 @@ async function displayStatsHighlight() {
     
     // Calculate current session including accumulated minutes from idle pauses
     let currentSessionMinutes = 0;
-    const accumulated = localResult.accumulatedMinutes || 0;
+    const accumulated = Math.max(0, localResult.accumulatedMinutes || 0);
     
     if (result.blockingEnabled) {
-      if (result.blockingStartTime) {
-        currentSessionMinutes = accumulated + Math.floor((Date.now() - result.blockingStartTime) / 60000);
+      if (result.blockingStartTime && result.blockingStartTime <= Date.now()) {
+        // Valid start time - calculate session minutes (handle clock skew)
+        const sessionMins = Math.max(0, Math.floor((Date.now() - result.blockingStartTime) / 60000));
+        currentSessionMinutes = accumulated + sessionMins;
       } else {
+        // Session paused (idle) or invalid start time - just show accumulated
         currentSessionMinutes = accumulated;
       }
     }

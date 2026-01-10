@@ -79,8 +79,6 @@ async function addToDailyStats(minutes) {
     // Prune old daily data (keep last 90 days to stay within storage limits)
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 90);
-    const cutoffKey = getTodayKey.call({ getDate: () => cutoff.getDate(), getMonth: () => cutoff.getMonth(), getFullYear: () => cutoff.getFullYear() });
-    // Simpler: regenerate cutoff key
     const cutoffYear = cutoff.getFullYear();
     const cutoffMonth = String(cutoff.getMonth() + 1).padStart(2, '0');
     const cutoffDay = String(cutoff.getDate()).padStart(2, '0');
@@ -515,10 +513,10 @@ async function checkSessionCap() {
     if (!result.blockingEnabled) return;
     
     const startTime = result.blockingStartTime;
-    const accumulated = localResult.accumulatedMinutes || 0;
+    const accumulated = sanitizeMinutes(localResult.accumulatedMinutes);
     
-    if (startTime) {
-      const sessionMinutes = Math.floor((Date.now() - startTime) / 60000);
+    if (startTime && typeof startTime === 'number' && startTime <= Date.now()) {
+      const sessionMinutes = Math.max(0, Math.floor((Date.now() - startTime) / 60000));
       const totalMinutes = accumulated + sessionMinutes;
       
       // 24 hour sanity cap - if reached, something's wrong (idle detection should have kicked in)
