@@ -424,7 +424,7 @@
         0 32px 80px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      transition: box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: transform;
       transform-style: preserve-3d;
     }
@@ -460,11 +460,24 @@
     .screenshot-popup {
       max-width: 320px;
       transform: translateY(var(--parallax-y, 0)) rotateY(-8deg) rotateX(2deg);
+      animation: floatScreenshot 6s ease-in-out infinite;
     }
 
     .screenshot-stats {
       max-width: 560px;
       transform: translateY(var(--parallax-y2, 0)) rotateY(5deg) rotateX(-2deg);
+      animation: floatScreenshot2 6s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    @keyframes floatScreenshot {
+      0%, 100% { transform: translateY(var(--parallax-y, 0)) rotateY(-8deg) rotateX(2deg); }
+      50% { transform: translateY(calc(var(--parallax-y, 0px) - 20px)) rotateY(-6deg) rotateX(4deg); }
+    }
+
+    @keyframes floatScreenshot2 {
+      0%, 100% { transform: translateY(var(--parallax-y2, 0)) rotateY(5deg) rotateX(-2deg); }
+      50% { transform: translateY(calc(var(--parallax-y2, 0px) - 15px)) rotateY(7deg) rotateX(0deg); }
     }
 
 
@@ -1226,32 +1239,11 @@
     const heroContent = document.querySelector('.hero-content');
     const bgGlow = document.querySelector('.bg-glow');
     const scrollProgress = document.getElementById('scrollProgress');
-    const cursorGlow = document.getElementById('cursorGlow');
-    const featureCards = document.querySelectorAll('.feature-card');
+        const cursorGlow = document.getElementById('cursorGlow');
+        const featureCards = document.querySelectorAll('.feature-card');
 
-    // Check if mobile
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-
-    // Smooth parallax interpolation
-    let currentY1 = 0, targetY1 = 0;
-    let currentY2 = 0, targetY2 = 0;
-    
-    const lerp = (start, end, factor) => start + (end - start) * factor;
-    
-    const smoothParallax = () => {
-      currentY1 = lerp(currentY1, targetY1, 0.08);
-      currentY2 = lerp(currentY2, targetY2, 0.08);
-      
-      if (screenshotPopup) {
-        screenshotPopup.style.setProperty('--parallax-y', `${currentY1}px`);
-      }
-      if (screenshotStats) {
-        screenshotStats.style.setProperty('--parallax-y2', `${currentY2}px`);
-      }
-      
-      requestAnimationFrame(smoothParallax);
-    };
-    smoothParallax();
+        // Check if mobile
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
         // Cursor glow tracking (desktop only)
         if (!isMobile && cursorGlow) {
@@ -1307,9 +1299,16 @@
         scrollProgress.style.width = `${progress}%`;
       }
       
-      // Multi-layer screenshot parallax - set targets for smooth interpolation
-      targetY1 = scrolled * 0.6;
-      targetY2 = scrolled * 0.35;
+      // Multi-layer screenshot parallax - different speeds create depth
+      if (screenshotPopup) {
+          const y1 = scrolled * 0.4;
+          screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
+      }
+      
+      if (screenshotStats) {
+          const y2 = scrolled * 0.2;
+          screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
+      }
       
       // Hero content fades and moves with scroll
       if (heroContent) {
