@@ -67,12 +67,19 @@
     .title {
       font-size: clamp(18px, 4vw, 28px);
       font-weight: 700;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(90deg, #7b8fc9, #9a8fb8, #7b8fc9);
+      background-size: 200% 100%;
+      animation: gradientFlow 4s linear infinite;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       margin-bottom: 8px;
       white-space: nowrap;
+    }
+    
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
     }
     
     @media (max-width: 600px) {

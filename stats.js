@@ -142,7 +142,7 @@ function getMinutesForDate(dateKey) {
   return stored;
 }
 
-// Calculate streak
+// Calculate current streak
 function calculateStreak() {
   let streakCount = 0;
   const today = new Date();
@@ -170,6 +170,52 @@ function calculateStreak() {
   }
   
   return streakCount;
+}
+
+// Calculate longest streak ever
+function calculateLongestStreak() {
+  const dates = Object.keys(statsData.daily).filter(d => statsData.daily[d] > 0).sort();
+  if (dates.length === 0) {
+    // Check if only today has data from current session
+    const today = getDateKey(new Date());
+    if (getMinutesForDate(today) > 0) return 1;
+    return 0;
+  }
+  
+  let longestStreak = 0;
+  let currentStreak = 1;
+  
+  for (let i = 1; i < dates.length; i++) {
+    const prevDate = new Date(dates[i - 1]);
+    const currDate = new Date(dates[i]);
+    
+    // Check if consecutive days
+    const diffDays = Math.round((currDate - prevDate) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+      currentStreak++;
+    } else {
+      longestStreak = Math.max(longestStreak, currentStreak);
+      currentStreak = 1;
+    }
+  }
+  
+  longestStreak = Math.max(longestStreak, currentStreak);
+  
+  // Check if today extends the streak (for current session)
+  const today = getDateKey(new Date());
+  const todayMinutes = getMinutesForDate(today);
+  if (todayMinutes > 0 && dates.length > 0 && !dates.includes(today)) {
+    const lastDate = new Date(dates[dates.length - 1]);
+    const todayDate = new Date(today);
+    const diffDays = Math.round((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      // Today continues the last streak, recalculate
+      longestStreak = Math.max(longestStreak, calculateStreak());
+    }
+  }
+  
+  return longestStreak;
 }
 
 // Load stats data
@@ -408,13 +454,23 @@ function updateStats() {
   // Calculate average
   const avgMinutes = totalDays > 0 ? Math.round(totalMinutesFromDaily / totalDays) : 0;
   
-  // Calculate streak
+  // Calculate streaks
   const currentStreak = calculateStreak();
+  const longestStreak = calculateLongestStreak();
+  const isPersonalBest = currentStreak > 0 && currentStreak >= longestStreak;
   
   avgDaily.textContent = formatTime(avgMinutes);
   bestDay.textContent = formatTime(bestDayMinutes);
   focusDays.innerHTML = `${totalDays} <span>days</span>`;
-  streak.innerHTML = `${currentStreak} <span>days</span>`;
+  
+  // Show streak with longest ever, and indicator if current is personal best
+  if (isPersonalBest && currentStreak > 1) {
+    streak.innerHTML = `${currentStreak} <span>days</span><span class="best-badge">· Best</span>`;
+  } else if (longestStreak > currentStreak) {
+    streak.innerHTML = `${currentStreak} <span>days</span><span class="longest-hint">· Best: ${longestStreak}</span>`;
+  } else {
+    streak.innerHTML = `${currentStreak} <span>days</span>`;
+  }
 }
 
 // Tab switching

@@ -201,76 +201,87 @@
     }
   }
 
-  // Get blocking info from storage
-  if (!chrome.storage?.sync) {
-    cleanup();
-    return;
-  }
-  chrome.storage.sync.get(['blockingEnabled', 'blockedSites', 'blockingEndTime'], (syncResult) => {
-    if (!chrome.storage?.local) {
+  // Wait for DOM to be ready before checking/showing overlay
+  function initBlocking() {
+    // Get blocking info from storage
+    if (!chrome.storage?.sync) {
       cleanup();
       return;
     }
-    chrome.storage.local.get(['blockingEnabled', 'blockedSites', 'blockingEndTime'], (localResult) => {
-      const enabled = syncResult.blockingEnabled ?? localResult.blockingEnabled ?? false;
-      const blockedSites = syncResult.blockedSites ?? localResult.blockedSites ?? [];
-      const endTime = syncResult.blockingEndTime ?? localResult.blockingEndTime ?? null;
-
-      if (!enabled || blockedSites.length === 0) {
+    chrome.storage.sync.get(['blockingEnabled', 'blockedSites', 'blockingEndTime'], (syncResult) => {
+      if (!chrome.storage?.local) {
         cleanup();
         return;
       }
+      chrome.storage.local.get(['blockingEnabled', 'blockedSites', 'blockingEndTime'], (localResult) => {
+        const enabled = syncResult.blockingEnabled ?? localResult.blockingEnabled ?? false;
+        const blockedSites = syncResult.blockedSites ?? localResult.blockedSites ?? [];
+        const endTime = syncResult.blockingEndTime ?? localResult.blockingEndTime ?? null;
 
-      const currentUrl = window.location.href.toLowerCase();
-      
-      // Check if current site is blocked
-      // *domain → matches anywhere (all subdomains)
-      // https://domain → exact domain match only (NOT subdomains)
-      const matchedSite = blockedSites.find(site => {
-        if (site.startsWith('*')) {
-          // Wildcard: match anywhere in URL (includes subdomains like music.youtube.com)
-          return currentUrl.includes(site.substring(1).toLowerCase());
-        } else if (site.startsWith('http://') || site.startsWith('https://')) {
-          // Full URL: exact domain match only, NOT subdomains
-          try {
-            const ruleUrl = new URL(site.toLowerCase());
-            const pageUrl = new URL(currentUrl);
-            const ruleDomain = ruleUrl.hostname.replace(/^www\./, '');
-            const pageDomain = pageUrl.hostname.replace(/^www\./, '');
-            return ruleDomain === pageDomain;
-          } catch {
-            return currentUrl.startsWith(site.toLowerCase());
+        if (!enabled || blockedSites.length === 0) {
+          cleanup();
+          return;
+        }
+
+        const currentUrl = window.location.href.toLowerCase();
+        
+        // Check if current site is blocked
+        // *domain → matches anywhere (all subdomains)
+        // https://domain → exact domain match only (NOT subdomains)
+        const matchedSite = blockedSites.find(site => {
+          if (site.startsWith('*')) {
+            // Wildcard: match anywhere in URL (includes subdomains like music.youtube.com)
+            return currentUrl.includes(site.substring(1).toLowerCase());
+          } else if (site.startsWith('http://') || site.startsWith('https://')) {
+            // Full URL: exact domain match only, NOT subdomains
+            try {
+              const ruleUrl = new URL(site.toLowerCase());
+              const pageUrl = new URL(currentUrl);
+              const ruleDomain = ruleUrl.hostname.replace(/^www\./, '');
+              const pageDomain = pageUrl.hostname.replace(/^www\./, '');
+              return ruleDomain === pageDomain;
+            } catch {
+              return currentUrl.startsWith(site.toLowerCase());
+            }
+          } else {
+            return currentUrl.includes(site.toLowerCase());
           }
+        });
+
+        if (matchedSite) {
+          // Try to extract site name from page title (e.g., "Video - YouTube" -> "YouTube")
+          let displaySite = null;
+          const title = document.title || '';
+          const separators = [' - ', ' | ', ' – ', ' — '];
+          for (const sep of separators) {
+            if (title.includes(sep)) {
+              displaySite = title.split(sep).pop().trim();
+              break;
+            }
+          }
+          // Fallback to hostname without TLD
+          if (!displaySite || displaySite.length > 20) {
+            const hostname = window.location.hostname.replace(/^www\./, '');
+            const parts = hostname.split('.');
+            displaySite = parts.length > 1 ? parts[parts.length - 2] : parts[0];
+          }
+          // Capitalize first letter
+          displaySite = displaySite.charAt(0).toUpperCase() + displaySite.slice(1);
+          showBlockedOverlay(displaySite, endTime);
         } else {
-          return currentUrl.includes(site.toLowerCase());
+          cleanup();
         }
       });
-
-      if (matchedSite) {
-        // Try to extract site name from page title (e.g., "Video - YouTube" -> "YouTube")
-        let displaySite = null;
-        const title = document.title || '';
-        const separators = [' - ', ' | ', ' – ', ' — '];
-        for (const sep of separators) {
-          if (title.includes(sep)) {
-            displaySite = title.split(sep).pop().trim();
-            break;
-          }
-        }
-        // Fallback to hostname without TLD
-        if (!displaySite || displaySite.length > 20) {
-          const hostname = window.location.hostname.replace(/^www\./, '');
-          const parts = hostname.split('.');
-          displaySite = parts.length > 1 ? parts[parts.length - 2] : parts[0];
-        }
-        // Capitalize first letter
-        displaySite = displaySite.charAt(0).toUpperCase() + displaySite.slice(1);
-        showBlockedOverlay(displaySite, endTime);
-      } else {
-        cleanup();
-      }
     });
-  });
+  }
+
+  // Ensure DOM is ready before initializing
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBlocking);
+  } else {
+    // DOM already loaded, init immediately
+    initBlocking();
+  }
 
   function showBlockedOverlay(site, endTime) {
     if (document.getElementById('focus-blocker-overlay')) return;
@@ -355,12 +366,18 @@
         .focus-blocker-title {
           font-size: clamp(18px, 4vw, 28px) !important;
           font-weight: 700 !important;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+          background: linear-gradient(90deg, #7b8fc9, #9a8fb8, #7b8fc9) !important;
+          background-size: 200% 100% !important;
+          animation: focusGradientFlow 4s linear infinite !important;
           -webkit-background-clip: text !important;
           -webkit-text-fill-color: transparent !important;
           background-clip: text !important;
           margin-bottom: 8px !important;
           white-space: nowrap !important;
+        }
+        @keyframes focusGradientFlow {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
         }
         @media (max-width: 600px) {
           .focus-blocker-title {
@@ -431,8 +448,22 @@
       </div>
     `;
 
-    document.documentElement.appendChild(overlay);
-    document.body.style.overflow = 'hidden';
+    // Append to body if available, otherwise documentElement
+    try {
+      if (document.body) {
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.documentElement.appendChild(overlay);
+      }
+    } catch (e) {
+      // Fallback: try documentElement
+      try {
+        document.documentElement.appendChild(overlay);
+      } catch (e2) {
+        console.error('Focus Mode: Could not show overlay', e2);
+      }
+    }
 
     // Start timer if there's an end time
     if (endTime) {

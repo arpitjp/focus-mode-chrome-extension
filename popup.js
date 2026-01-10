@@ -691,8 +691,15 @@ importFile.addEventListener('change', async (e) => {
     // Import blocked sites
     if (hasBlockedSites) {
       const normalizedImported = data.blockedSites
+        .filter(site => typeof site === 'string' && site.trim().length > 0)
         .map(site => normalizeSite(site))
-        .filter(site => site.length > 1);
+        .filter(site => {
+          // Validate: must have a domain part after prefix
+          if (site.startsWith('*')) return site.length > 1;
+          if (site.startsWith('http://')) return site.length > 7;
+          if (site.startsWith('https://')) return site.length > 8;
+          return site.length > 0;
+        });
       
       const existingSites = result.blockedSites || [];
       const allSites = [...new Set([...existingSites, ...normalizedImported])];
