@@ -28,20 +28,21 @@ A Chrome extension that blocks distracting websites to help you stay focused.
 - **Streak tracking** — See current and best focus streaks
 - **Hold to disable** — Prevents accidental turn-off during sessions
 - **Smart wildcards** — `*youtube.com` blocks all subdomains, `https://youtube.com` blocks exact match only, doesn't block `music.youtube.com`
-- **Beautiful block page** — Clean overlay with motivational quotes
+- **Minimal block page** — Clean overlay, no distractions
 - **Import/Export** — Backup and restore your settings and stats
 - **Syncs across devices** — Via your Google account
-- **100% private** — No data collection, no tracking, fully local
+- **100% private** — No data collection, no tracking, no ads, fully local
 
 ## Install
 
 **Chrome Web Store**: [Install Focus Mode](https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn)
 
-**Manual**: Clone repo → `chrome://extensions` → Enable Developer Mode → Load unpacked
+**Manual**: Clone repo → In chrome, go to `chrome://extensions` → Enable Developer Mode → Load unpacked → Select the cloned repo
 
 ## Privacy
 
 - No data collection or analytics
+- No ads
 - No external servers
 - 100% local storage
 - Open source
