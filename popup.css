@@ -64,10 +64,9 @@ img {
 .header {
   display: flex;
   align-items: center;
-    justify-content: center;
-    gap: 10px;
+  justify-content: flex-start;
+  gap: 10px;
   margin-bottom: 16px;
-    position: relative;
 }
 
 .header-icon {
@@ -77,11 +76,10 @@ img {
 }
 
 .header-actions {
-  position: absolute;
-  right: 0;
   display: flex;
   align-items: center;
   gap: 2px;
+  margin-left: auto;
 }
 
 .header-action-btn {
