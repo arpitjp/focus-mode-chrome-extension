@@ -49,15 +49,15 @@ function updateChimeIcon(muted) {
   }
 }
 
-// Load initial mute state
-chrome.storage.sync.get(['chimeMuted']).then(result => {
+// Load initial mute state (use local storage - more reliable)
+chrome.storage.local.get(['chimeMuted']).then(result => {
   updateChimeIcon(result.chimeMuted || false);
 });
 
 chimeMuteBtn.addEventListener('click', async () => {
-  const result = await chrome.storage.sync.get(['chimeMuted']);
+  const result = await chrome.storage.local.get(['chimeMuted']);
   const newMuted = !result.chimeMuted;
-  await chrome.storage.sync.set({ chimeMuted: newMuted });
+  await chrome.storage.local.set({ chimeMuted: newMuted });
   updateChimeIcon(newMuted);
 });
 

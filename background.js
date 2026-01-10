@@ -329,13 +329,16 @@ ensureOffscreen();
 
 // Play completion chime
 async function playChime() {
-  // Check if chime is muted (default to playing if check fails)
+  // Check if chime is muted (use local storage - more reliable, doesn't need sync)
+  let isMuted = false;
   try {
-    const result = await chrome.storage.sync.get(['chimeMuted']);
-    if (result.chimeMuted === true) return;
+    const result = await chrome.storage.local.get(['chimeMuted']);
+    isMuted = result.chimeMuted === true;
   } catch (e) {
-    // Storage check failed - play chime anyway
+    // Storage check failed - default to not muted
   }
+  
+  if (isMuted) return;
   
   // Play the chime
   try {
