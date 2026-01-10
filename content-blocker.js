@@ -309,7 +309,7 @@
           left: 0 !important;
           width: 100vw !important;
           height: 100vh !important;
-          background: #0c0c14 !important;
+          background: #050508 !important;
           z-index: 2147483647 !important;
           display: flex !important;
           align-items: center !important;
@@ -327,10 +327,14 @@
           width: 200% !important;
           height: 200% !important;
           background: 
-            radial-gradient(ellipse at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-            radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
-            radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 60%) !important;
+            radial-gradient(ellipse at 30% 20%, rgba(91, 127, 255, 0.2) 0%, transparent 50%),
+            radial-gradient(ellipse at 70% 80%, rgba(167, 139, 250, 0.15) 0%, transparent 50%) !important;
           pointer-events: none !important;
+          animation: focusGlowFloat 20s ease-in-out infinite !important;
+        }
+        @keyframes focusGlowFloat {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(30px, -20px); }
         }
         #focus-blocker-overlay * {
           box-sizing: border-box !important;
@@ -366,18 +370,18 @@
         .focus-blocker-title {
           font-size: clamp(18px, 4vw, 28px) !important;
           font-weight: 700 !important;
-          background: linear-gradient(90deg, #7b8fc9, #9a8fb8, #7b8fc9) !important;
-          background-size: 200% 100% !important;
-          animation: focusGradientFlow 4s linear infinite !important;
+          background: linear-gradient(90deg, #5b7fff 0%, #a78bfa 25%, #f0f0f5 50%, #a78bfa 75%, #5b7fff 100%) !important;
+          background-size: 400% 100% !important;
+          animation: focusTextShimmer 8s ease-in-out infinite !important;
           -webkit-background-clip: text !important;
           -webkit-text-fill-color: transparent !important;
           background-clip: text !important;
           margin-bottom: 8px !important;
           white-space: nowrap !important;
         }
-        @keyframes focusGradientFlow {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
+        @keyframes focusTextShimmer {
+          0%, 100% { background-position: 100% 50%; }
+          50% { background-position: 0% 50%; }
         }
         @media (max-width: 600px) {
           .focus-blocker-title {

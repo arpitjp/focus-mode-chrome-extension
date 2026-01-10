@@ -1044,12 +1044,12 @@
 </head>
 <body>
 <div class="scroll-progress" id="scrollProgress"></div>
-  <div class="cursor-glow" id="cursorGlow"></div>
-  <div class="noise-overlay"></div>
+<div class="cursor-glow" id="cursorGlow"></div>
+<div class="noise-overlay"></div>
   <div class="bg-glow"></div>
   
-  <!-- Floating particles -->
-  <div class="particles">
+<!-- Floating particles -->
+<div class="particles">
     <div class="particle"></div>
     <div class="particle"></div>
     <div class="particle"></div>
@@ -1060,8 +1060,7 @@
     <div class="particle"></div>
     <div class="particle"></div>
     <div class="particle"></div>
-  </div>
-  
+</div>
   <!-- Floating orbs -->
   <div class="floating-orbs">
     <div class="orb orb-1"></div>
@@ -1233,53 +1232,53 @@
     const heroContent = document.querySelector('.hero-content');
     const bgGlow = document.querySelector('.bg-glow');
     const scrollProgress = document.getElementById('scrollProgress');
-    const cursorGlow = document.getElementById('cursorGlow');
-    const featureCards = document.querySelectorAll('.feature-card');
-    
-    // Check if mobile
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    
-    // Cursor glow tracking (desktop only)
-    if (!isMobile && cursorGlow) {
-      let cursorX = 0, cursorY = 0;
-      let glowX = 0, glowY = 0;
-      
-      document.addEventListener('mousemove', (e) => {
-        cursorX = e.clientX;
-        cursorY = e.clientY;
-      });
-      
-      // Smooth cursor follow
-      const animateCursor = () => {
-        glowX += (cursorX - glowX) * 0.1;
-        glowY += (cursorY - glowY) * 0.1;
-        cursorGlow.style.left = glowX + 'px';
-        cursorGlow.style.top = glowY + 'px';
-        requestAnimationFrame(animateCursor);
-      };
-      animateCursor();
-    }
-    
-    // 3D tilt effect on feature cards (desktop only)
-    if (!isMobile) {
-      featureCards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-          const rect = card.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          const centerX = rect.width / 2;
-          const centerY = rect.height / 2;
-          const rotateX = (y - centerY) / 15;
-          const rotateY = (centerX - x) / 15;
-          
-          card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-        });
-        
-        card.addEventListener('mouseleave', () => {
-          card.style.transform = '';
-        });
-      });
-    }
+        const cursorGlow = document.getElementById('cursorGlow');
+        const featureCards = document.querySelectorAll('.feature-card');
+
+        // Check if mobile
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+        // Cursor glow tracking (desktop only)
+        if (!isMobile && cursorGlow) {
+            let cursorX = 0, cursorY = 0;
+            let glowX = 0, glowY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                cursorX = e.clientX;
+                cursorY = e.clientY;
+            });
+
+            // Smooth cursor follow
+            const animateCursor = () => {
+                glowX += (cursorX - glowX) * 0.1;
+                glowY += (cursorY - glowY) * 0.1;
+                cursorGlow.style.left = glowX + 'px';
+                cursorGlow.style.top = glowY + 'px';
+                requestAnimationFrame(animateCursor);
+            };
+            animateCursor();
+        }
+
+        // 3D tilt effect on feature cards (desktop only)
+        if (!isMobile) {
+            featureCards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / 15;
+                    const rotateY = (centerX - x) / 15;
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                });
+            });
+        }
     
     // Scroll-based parallax
     const handleScroll = () => {
@@ -1295,13 +1294,13 @@
       
       // Multi-layer screenshot parallax - different speeds create depth
       if (screenshotPopup) {
-        const y1 = scrolled * 0.4;
-        screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
+          const y1 = scrolled * 0.4;
+          screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
       }
       
       if (screenshotStats) {
-        const y2 = scrolled * 0.2;
-        screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
+          const y2 = scrolled * 0.2;
+          screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
       }
       
       // Hero content fades and moves with scroll
@@ -1317,11 +1316,11 @@
         bgGlow.style.transform = `translateY(${scrolled * 0.05}px)`;
       }
       
-      // Hide cursor glow when scrolling down
-      if (cursorGlow) {
-        cursorGlow.style.opacity = Math.max(1 - scrolled * 0.002, 0);
-      }
-      
+        // Hide cursor glow when scrolling down
+        if (cursorGlow) {
+            cursorGlow.style.opacity = Math.max(1 - scrolled * 0.002, 0);
+        }
+    
       // Reveal animations with stagger
       document.querySelectorAll('.reveal').forEach((el, index) => {
         const rect = el.getBoundingClientRect();
@@ -1333,7 +1332,7 @@
       });
     };
     
-    // Smooth scroll with RAF
+        // Smooth scroll with RAF
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) {
@@ -1345,7 +1344,7 @@
       }
     }, { passive: true });
 
-    window.addEventListener('load', handleScroll);
+        window.addEventListener('load', handleScroll);
   </script>
 </body>
 </html>
