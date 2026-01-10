@@ -424,20 +424,22 @@
     }
 
     .feature-icon {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, rgba(91, 127, 255, 0.15) 0%, rgba(167, 139, 250, 0.15) 100%);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 48px;
+      height: 48px;
       margin-bottom: 20px;
-      font-size: 28px;
       transition: transform 0.4s ease;
     }
 
+    .feature-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: url(#icon-gradient);
+      stroke-width: 1.5;
+      fill: none;
+    }
+
     .feature-card:hover .feature-icon {
-      transform: scale(1.1) rotate(-5deg);
+      transform: scale(1.1);
     }
 
     .feature-title {
@@ -651,6 +653,16 @@
 </head>
 <body>
   <div class="bg-glow"></div>
+  
+  <!-- SVG Gradient Definition -->
+  <svg width="0" height="0" style="position: absolute;">
+    <defs>
+      <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#5b7fff" />
+        <stop offset="100%" stop-color="#a78bfa" />
+      </linearGradient>
+    </defs>
+  </svg>
 
   <!-- Hero -->
   <section class="hero">
@@ -695,37 +707,65 @@
       
       <div class="features-grid">
         <div class="feature-card reveal">
-          <div class="feature-icon">⚡</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
           <h3 class="feature-title">One-Click Blocking</h3>
           <p class="feature-desc">Toggle focus mode instantly. No complicated settings to manage.</p>
         </div>
         
         <div class="feature-card reveal">
-          <div class="feature-icon">🔒</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
           <h3 class="feature-title">Hold to Disable</h3>
           <p class="feature-desc">Prevents accidental turn-off during sessions. Your focus is protected.</p>
         </div>
         
         <div class="feature-card reveal">
-          <div class="feature-icon">📊</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M18 20V10M12 20V4M6 20v-6"/>
+            </svg>
+          </div>
           <h3 class="feature-title">Focus Stats</h3>
           <p class="feature-desc">Track daily, weekly, and monthly focus time. See your streaks grow.</p>
         </div>
         
         <div class="feature-card reveal">
-          <div class="feature-icon">⏱️</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
           <h3 class="feature-title">Flexible Timers</h3>
           <p class="feature-desc">5 minutes to infinite. Custom durations for any work session.</p>
         </div>
         
         <div class="feature-card reveal">
-          <div class="feature-icon">🎯</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+            </svg>
+          </div>
           <h3 class="feature-title">Smart Wildcards</h3>
           <p class="feature-desc">Block entire domains or specific URLs. You control what gets blocked.</p>
         </div>
         
         <div class="feature-card reveal">
-          <div class="feature-icon">🛡️</div>
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
           <h3 class="feature-title">100% Private</h3>
           <p class="feature-desc">No tracking, no analytics, no servers. Everything stays on your device.</p>
         </div>
