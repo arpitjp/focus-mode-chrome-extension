@@ -16,6 +16,7 @@ const statsText = document.getElementById('statsText');
 
 let countdownInterval = null;
 let holdTimer = null;
+let holdCompleted = false; // Flag to prevent click after successful hold
 const HOLD_DURATION = 1000; // 1 second to turn off
 
 // Stats click handlers - opens full stats page
@@ -35,6 +36,7 @@ function startHold() {
   holdTimer = setTimeout(() => {
     // Hold completed - turn off
     toggleWrapper.classList.remove('holding');
+    holdCompleted = true; // Prevent the subsequent click from turning it back on
     blockingToggle.checked = false;
     updateToggleTitle(false);
     handleToggleChange();
@@ -71,6 +73,12 @@ toggleWrapper.addEventListener('mouseup', cancelHold);
 toggleWrapper.addEventListener('mouseleave', cancelHold);
 
 toggleWrapper.addEventListener('click', (e) => {
+  // If we just completed a hold to turn off, ignore this click
+  if (holdCompleted) {
+    holdCompleted = false;
+    return;
+  }
+  
   if (!blockingToggle.checked) {
     // Blocking is OFF - turn ON immediately
     blockingToggle.checked = true;
@@ -89,6 +97,11 @@ toggleWrapper.addEventListener('touchstart', (e) => {
 
 toggleWrapper.addEventListener('touchend', (e) => {
   cancelHold();
+  // If we just completed a hold to turn off, ignore this touch
+  if (holdCompleted) {
+    holdCompleted = false;
+    return;
+  }
   // Handle tap to turn ON for touch devices
   if (!blockingToggle.checked) {
     blockingToggle.checked = true;
