@@ -6,8 +6,7 @@ let initialized = false;
 
 // Session tracking constants
 const MAX_SESSION_MINUTES = 1440; // 24 hours - sanity cap to catch bugs, not limit users
-const IDLE_THRESHOLD_SECONDS = 300; // 5 minutes idle = pause session
-const SLEEP_GAP_MINUTES = 10; // If last heartbeat was > 10 min ago, assume sleep/restart
+const SLEEP_GAP_MINUTES = 30; // If last heartbeat was > 30 min ago, assume sleep/shutdown
 
 // Get today's date key for stats (LOCAL timezone, not UTC)
 function getTodayKey() {
@@ -256,18 +255,20 @@ async function startSession() {
 }
 
 // Handle idle state changes
+// Only pause on 'locked' (screen lock) - not on 'idle' because user may be working in other apps
 async function handleIdleStateChange(state) {
   try {
     const result = await chrome.storage.sync.get(['blockingEnabled']);
     if (!result.blockingEnabled) return;
     
-    if (state === 'idle' || state === 'locked') {
-      // User went idle - pause session to stop counting
+    if (state === 'locked') {
+      // Screen locked - user definitely stepped away, pause session
       await pauseSession();
     } else if (state === 'active') {
-      // User became active - resume session
+      // User became active - resume session if it was paused
       await resumeSession();
     }
+    // Note: 'idle' state is ignored - user might just be working in another app
   } catch (e) {}
 }
 
@@ -456,9 +457,10 @@ async function initialize() {
     }
   } catch (e) {}
   
-  // Set up idle detection (5 min threshold)
+  // Set up idle detection - we only care about 'locked' state (screen lock)
+  // The threshold doesn't matter much since we ignore 'idle' state
   try {
-    chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SECONDS);
+    chrome.idle.setDetectionInterval(60); // 1 minute - just for detecting screen lock quickly
     chrome.idle.onStateChanged.addListener(handleIdleStateChange);
   } catch (e) {}
   

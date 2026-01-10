@@ -589,11 +589,12 @@ async function handleToggleChange() {
     durationContainer.style.display = 'none';
     customDuration.style.display = 'none';
     stopCountdown();
+    // Don't clear blockingStartTime here - let background.js finalizeSession() read it first
+    // to save the accumulated stats before clearing
     await saveToStorage({ 
       blockingEnabled: enabled,
       blockingEndTime: null,
-      blockingDuration: null,
-      blockingStartTime: null  // Clear to prevent orphaned timestamps
+      blockingDuration: null
     });
     chrome.runtime.sendMessage({ action: 'updateBlocking', enabled }).catch(() => {});
   }
