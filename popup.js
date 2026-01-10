@@ -766,6 +766,7 @@ chrome.management.getSelf((info) => {
 
 // Support prompt modal logic
 const PROMPT_THRESHOLD_MINUTES = 90;
+const PROMPT_THRESHOLD_DAYS = 2;
 const supportModal = document.getElementById('supportModal');
 const rateBtn = document.getElementById('rateBtn');
 const coffeeBtn = document.getElementById('coffeeBtn');
@@ -775,7 +776,7 @@ const dontShowBtn = document.getElementById('dontShowBtn');
 async function checkSupportPrompt() {
   try {
     const result = await chrome.storage.sync.get(['stats', 'supportPrompt']);
-    const stats = result.stats || { totalMinutes: 0 };
+    const stats = result.stats || { totalMinutes: 0, daily: {} };
     const prompt = result.supportPrompt || {};
     
     // Don't show if user dismissed permanently, already rated, or already supported
@@ -787,11 +788,19 @@ async function checkSupportPrompt() {
     const lastPromptAt = prompt.lastPromptAt || 0;
     const minutesSinceLastPrompt = totalMinutes - lastPromptAt;
     
+    // Count days with usage
+    const daysWithUsage = Object.keys(stats.daily || {}).filter(d => stats.daily[d] > 0).length;
+    
+    // Must have at least 2 days of usage AND 90 minutes total
+    const meetsThreshold = totalMinutes >= PROMPT_THRESHOLD_MINUTES && daysWithUsage >= PROMPT_THRESHOLD_DAYS;
+    
     // Show prompt if:
-    // 1. First time: total >= 90 minutes and never prompted before
-    // 2. Remind later: 90 more minutes since last prompt
-    const shouldShow = (lastPromptAt === 0 && totalMinutes >= PROMPT_THRESHOLD_MINUTES) ||
-                       (lastPromptAt > 0 && minutesSinceLastPrompt >= PROMPT_THRESHOLD_MINUTES);
+    // 1. First time: meets threshold and never prompted before
+    // 2. Remind later: 90 more minutes since last prompt (and still meets threshold)
+    const shouldShow = meetsThreshold && (
+      (lastPromptAt === 0) ||
+      (lastPromptAt > 0 && minutesSinceLastPrompt >= PROMPT_THRESHOLD_MINUTES)
+    );
     
     if (shouldShow) {
       showSupportModal();
