@@ -388,14 +388,10 @@ async function initialize() {
     const accumulated = sanitizeMinutes(localResult.accumulatedMinutes);
     
     if (!result.blockingEnabled) {
-      // Blocking is off - clean up any orphaned data
+      // Blocking is off - save any orphaned session data before cleaning up
+      // This handles the case where popup.js message to finalizeSession() failed
       if (result.blockingStartTime || accumulated > 0) {
-        await chrome.storage.sync.set({ blockingStartTime: null });
-        await chrome.storage.local.set({ 
-          lastHeartbeat: null, 
-          accumulatedMinutes: 0,
-          wasIdle: false 
-        });
+        await finalizeSession(); // This saves stats then clears session data
       }
     } else if (result.blockingStartTime && typeof result.blockingStartTime === 'number') {
       const startTime = result.blockingStartTime;
