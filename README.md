@@ -27,7 +27,7 @@ A Chrome extension that blocks distracting websites to help you stay focused.
 - **Focus stats** — Track daily, weekly, monthly focus time
 - **Streak tracking** — See current and best focus streaks
 - **Hold to disable** — Prevents accidental turn-off during sessions
-- **Smart wildcards** — `*youtube.com` blocks all subdomains, `https://youtube.com` blocks exact match only, doesn't block music.youtube.com
+- **Smart wildcards** — `*youtube.com` blocks all subdomains, `https://youtube.com` blocks exact match only, doesn't block `music.youtube.com`
 - **Beautiful block page** — Clean overlay with motivational quotes
 - **Import/Export** — Backup and restore your settings and stats
 - **Syncs across devices** — Via your Google account
