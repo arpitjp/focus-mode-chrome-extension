@@ -1,5 +1,6 @@
 // DOM elements
 const blockingToggle = document.getElementById('blockingToggle');
+const toggleWrapper = document.getElementById('toggleWrapper');
 const siteInput = document.getElementById('siteInput');
 const addSiteBtn = document.getElementById('addSiteBtn');
 const blockedSitesList = document.getElementById('blockedSitesList');
@@ -14,6 +15,8 @@ const statsBar = document.getElementById('statsBar');
 const statsText = document.getElementById('statsText');
 
 let countdownInterval = null;
+let holdTimer = null;
+const HOLD_DURATION = 1000; // 1 second to turn off
 
 // Stats click handlers - opens full stats page
 statsBar.addEventListener('click', () => {
@@ -23,6 +26,78 @@ statsBar.addEventListener('click', () => {
 document.getElementById('statsFooterBtn').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('stats.html') });
 });
+
+// Hold-to-disable logic
+function startHold() {
+  if (!blockingToggle.checked) return; // Only for turning OFF
+  
+  toggleWrapper.classList.add('holding');
+  holdTimer = setTimeout(() => {
+    // Hold completed - turn off
+    toggleWrapper.classList.remove('holding');
+    blockingToggle.checked = false;
+    updateToggleTitle(false);
+    handleToggleChange();
+  }, HOLD_DURATION);
+}
+
+function cancelHold() {
+  if (holdTimer) {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }
+  toggleWrapper.classList.remove('holding');
+}
+
+function updateToggleTitle(isBlocking) {
+  if (isBlocking) {
+    toggleWrapper.title = 'Hold to disable blocking';
+  } else {
+    toggleWrapper.title = 'Click to enable blocking';
+  }
+}
+
+// Handle toggle wrapper interactions
+toggleWrapper.addEventListener('mousedown', (e) => {
+  if (blockingToggle.checked) {
+    // Blocking is ON - start hold timer to turn OFF
+    e.preventDefault();
+    startHold();
+  }
+  // If blocking is OFF, click handler will handle turn-ON
+});
+
+toggleWrapper.addEventListener('mouseup', cancelHold);
+toggleWrapper.addEventListener('mouseleave', cancelHold);
+
+toggleWrapper.addEventListener('click', (e) => {
+  if (!blockingToggle.checked) {
+    // Blocking is OFF - turn ON immediately
+    blockingToggle.checked = true;
+    updateToggleTitle(true);
+    handleToggleChange();
+  }
+  // If blocking is ON, the hold logic handles turn-OFF
+});
+
+toggleWrapper.addEventListener('touchstart', (e) => {
+  if (blockingToggle.checked) {
+    e.preventDefault();
+    startHold();
+  }
+}, { passive: false });
+
+toggleWrapper.addEventListener('touchend', (e) => {
+  cancelHold();
+  // Handle tap to turn ON for touch devices
+  if (!blockingToggle.checked) {
+    blockingToggle.checked = true;
+    updateToggleTitle(true);
+    handleToggleChange();
+  }
+});
+
+toggleWrapper.addEventListener('touchcancel', cancelHold);
 
 // Format time for display
 function formatStatsTime(minutes) {
@@ -210,6 +285,7 @@ async function loadState() {
     const lastCustomMinutes = syncResult.lastCustomMinutes ?? null;
     
     blockingToggle.checked = blockingEnabled;
+    updateToggleTitle(blockingEnabled);
     displayBlockedSites(blockedSites);
     
     // Set the last selected duration option
@@ -410,9 +486,6 @@ async function handleToggleChange() {
     chrome.runtime.sendMessage({ action: 'updateBlocking', enabled }).catch(() => {});
   }
 }
-
-// Toggle blocking on/off
-blockingToggle.addEventListener('change', handleToggleChange);
 
 // Handle duration selection change
 durationSelect.addEventListener('change', async () => {

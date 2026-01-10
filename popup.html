@@ -14,11 +14,14 @@
     </header>
     
     <div class="toggle-section">
-      <label class="toggle-label">
+      <div class="toggle-row">
         <span class="toggle-text">Blocking</span>
-        <input type="checkbox" id="blockingToggle" class="toggle-input">
-        <span class="toggle-slider"></span>
-      </label>
+        <div class="toggle-wrapper" id="toggleWrapper">
+          <input type="checkbox" id="blockingToggle" class="toggle-input">
+          <span class="toggle-slider"></span>
+          <span class="hold-progress" id="holdProgress"></span>
+        </div>
+      </div>
       <div class="duration-container" id="durationContainer" style="display: none;">
         <select id="durationSelect" class="duration-select">
           <option value="infinite">∞ Infinite</option>
