@@ -327,20 +327,20 @@
 
     .screenshot-popup {
       max-width: 320px;
-      transform: translateY(var(--parallax-y, 0));
+      transform: translateY(var(--parallax-y, 0)) rotate(var(--parallax-rotate, 0deg));
     }
 
     .screenshot-popup:hover {
-      transform: translateY(var(--parallax-y, 0)) scale(1.03) rotateY(-2deg);
+      transform: translateY(var(--parallax-y, 0)) rotate(var(--parallax-rotate, 0deg)) scale(1.05);
     }
 
     .screenshot-stats {
       max-width: 580px;
-      transform: translateY(var(--parallax-y2, 0));
+      transform: translateY(var(--parallax-y2, 0)) rotate(calc(var(--parallax-rotate2, 0deg) * -1));
     }
 
     .screenshot-stats:hover {
-      transform: translateY(var(--parallax-y2, 0)) scale(1.02) rotateY(2deg);
+      transform: translateY(var(--parallax-y2, 0)) rotate(calc(var(--parallax-rotate2, 0deg) * -1)) scale(1.03);
     }
 
     /* Features Section */
@@ -783,15 +783,19 @@
     const handleScroll = () => {
       const scrolled = window.scrollY;
       
-      // Parallax for screenshots
+      // Parallax for screenshots - more dramatic effect
       if (screenshotPopup) {
-        const rate1 = 0.15;
+        const rate1 = 0.35;
+        const rotation1 = scrolled * 0.02;
         screenshotPopup.style.setProperty('--parallax-y', `${scrolled * rate1}px`);
+        screenshotPopup.style.setProperty('--parallax-rotate', `${Math.min(rotation1, 8)}deg`);
       }
       
       if (screenshotStats) {
-        const rate2 = 0.08;
+        const rate2 = 0.15;
+        const rotation2 = scrolled * 0.01;
         screenshotStats.style.setProperty('--parallax-y2', `${scrolled * rate2}px`);
+        screenshotStats.style.setProperty('--parallax-rotate2', `${Math.min(rotation2, 5)}deg`);
       }
       
       // Reveal animations
