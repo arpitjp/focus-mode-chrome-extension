@@ -116,14 +116,20 @@
 
     /* Hero Section */
     .hero {
-      min-height: 100vh;
+      min-height: auto;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 120px 24px 80px;
+      padding: 80px 24px 100px;
       position: relative;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 60px;
     }
 
     .logo {
@@ -243,54 +249,9 @@
       transform: translateY(-2px);
     }
 
-    /* Scroll indicator */
-    .scroll-hint {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-muted);
-      font-size: 12px;
-      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s backwards;
-    }
-
-    .scroll-hint span {
-      width: 24px;
-      height: 40px;
-      border: 2px solid var(--text-muted);
-      border-radius: 12px;
-      position: relative;
-    }
-
-    .scroll-hint span::after {
-      content: '';
-      position: absolute;
-      top: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 2px;
-      animation: scrollBounce 2s ease-in-out infinite;
-    }
-
-    @keyframes scrollBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
-      50% { transform: translateX(-50%) translateY(12px); opacity: 0.3; }
-    }
-
     /* Screenshot Section - Parallax */
-    .screenshot-section {
-      padding: 0 0 120px;
-      position: relative;
-    }
-
     .screenshot-wrapper {
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
       position: relative;
       display: flex;
       justify-content: center;
@@ -624,10 +585,6 @@
         flex-direction: column;
         text-align: center;
       }
-
-      .scroll-hint {
-        display: none;
-      }
     }
 
     /* Scroll animations */
@@ -664,28 +621,22 @@
     </defs>
   </svg>
 
-  <!-- Hero -->
+  <!-- Hero with Screenshots -->
   <section class="hero">
     <div class="container">
-      <div class="logo">
-        <img src="icon128.png" alt="Focus Mode" class="logo-icon">
-        <span class="logo-text">Focus Mode</span>
+      <div class="hero-content">
+        <div class="logo">
+          <img src="icon128.png" alt="Focus Mode" class="logo-icon">
+          <span class="logo-text">Focus Mode</span>
+        </div>
+        <p class="hero-tagline">
+          Block distractions. <strong>Stay focused.</strong>
+        </p>
+        <a href="https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn" class="btn btn-primary" target="_blank">
+          <span>Add to Chrome — Free</span>
+        </a>
       </div>
-      <p class="hero-tagline">
-        Block distractions. <strong>Stay focused.</strong>
-      </p>
-      <a href="https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn" class="btn btn-primary" target="_blank">
-        <span>Add to Chrome — Free</span>
-      </a>
-    </div>
-    <div class="scroll-hint">
-      <span></span>
-    </div>
-  </section>
-
-  <!-- Screenshots with Parallax -->
-  <section class="screenshot-section">
-    <div class="container">
+      
       <div class="screenshot-wrapper">
         <div class="screenshot screenshot-popup" data-parallax="0.15">
           <img src="assets/popup.png" alt="Focus Mode Popup">
