@@ -121,46 +121,24 @@ img {
   padding: 8px 10px;
   margin-top: 12px;
   background: transparent;
-    border: none;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
   position: relative;
-    z-index: 1;
-  }
-  
-  .stats-bar::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 8px;
-    padding: 1px;
-    background: linear-gradient(90deg, rgba(91, 127, 255, 0.4), rgba(167, 139, 250, 0.4), rgba(91, 127, 255, 0.4));
-    background-size: 200% 100%;
-    animation: borderFlowSlow 4s linear infinite;
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    z-index: -1;
+  z-index: 1;
 }
 
-.stats-bar:hover {
-  background: rgba(91, 127, 255, 0.08);
-  transform: translateY(-1px);
-}
-
-.stats-bar:hover .stats-icon-btn {
-  color: #a78bfa;
-  transform: scale(1.1);
-}
-
-.stats-bar:hover .stats-arrow {
-  background: linear-gradient(90deg, #5b7fff, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  transform: translateX(2px);
+.stats-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  padding: 1px;
+  background: linear-gradient(90deg, rgba(91, 127, 255, 0.2), rgba(167, 139, 250, 0.2), rgba(91, 127, 255, 0.2));
+  background-size: 200% 100%;
+  animation: borderFlowSlow 4s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: -1;
 }
 
 .stats-icon-btn {
@@ -200,13 +178,36 @@ img {
     background-clip: text;
 }
 
-.stats-arrow {
-  font-size: 14px;
-  color: var(--text-muted);
-  opacity: 0.5;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
+.stats-arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   margin-left: auto;
+  flex-shrink: 0;
+  background: rgba(91, 127, 255, 0.1);
+  border: 1px solid rgba(91, 127, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stats-arrow-btn svg {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  transition: transform 0.2s ease;
+}
+
+.stats-arrow-btn:hover {
+  background: rgba(91, 127, 255, 0.2);
+  border-color: rgba(91, 127, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.stats-arrow-btn:hover svg {
+  transform: translateX(2px);
 }
 h1 {
   font-size: 17px;

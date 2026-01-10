@@ -22,7 +22,7 @@ let holdCompleted = false; // Flag to prevent click after successful hold
 const HOLD_DURATION = 1000; // 1 second to turn off
 
 // Stats click handlers - opens full stats page
-statsBar.addEventListener('click', () => {
+document.getElementById('statsArrowBtn').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('stats.html') });
 });
 
