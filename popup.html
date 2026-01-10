@@ -11,6 +11,11 @@
     <header class="header">
       <img src="icon48.png" alt="Focus Mode" class="header-icon">
       <h1>Focus Mode</h1>
+      <button id="statsHeaderBtn" class="header-stats-btn" title="View stats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 20V10M12 20V4M6 20v-6" />
+        </svg>
+      </button>
     </header>
     
     <div class="toggle-section">
@@ -65,13 +70,8 @@
       <ul id="blockedSitesList" class="sites-list"></ul>
     </div>
 
-    <footer class="footer">
+    <footer class="footer" id="footer">
       <div class="footer-actions">
-        <button id="statsFooterBtn" class="icon-btn" title="View stats">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 20V10M12 20V4M6 20v-6" />
-          </svg>
-        </button>
         <button id="exportBtn" class="icon-btn" title="Export data">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>

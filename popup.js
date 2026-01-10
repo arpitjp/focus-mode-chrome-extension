@@ -13,6 +13,7 @@ const customMinutes = document.getElementById('customMinutes');
 const timerText = document.getElementById('timerText');
 const statsBar = document.getElementById('statsBar');
 const statsText = document.getElementById('statsText');
+const footer = document.getElementById('footer');
 
 let countdownInterval = null;
 let holdTimer = null;
@@ -24,7 +25,7 @@ statsBar.addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('stats.html') });
 });
 
-document.getElementById('statsFooterBtn').addEventListener('click', () => {
+document.getElementById('statsHeaderBtn').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('stats.html') });
 });
 
@@ -206,15 +207,17 @@ async function displayStatsHighlight() {
     // Only show stats if user has completed at least one focus session AND blocking is OFF
     const hasCompletedSession = totalMinutes > 0 || Object.keys(stats.daily).length > 0;
     
-    // Hide stats and blocked sites when session is active - keep focus on the task
+    // Hide stats, blocked sites, and footer when session is active - keep focus on the task
     if (result.blockingEnabled) {
       statsBar.style.display = 'none';
       blockedSitesSection.style.display = 'none';
       sitesDivider.style.display = 'none';
+      footer.style.display = 'none';
       return;
     } else {
       blockedSitesSection.style.display = 'block';
       sitesDivider.style.display = 'block';
+      footer.style.display = 'flex';
     }
     
     if (highlights.length > 0) {
@@ -799,12 +802,10 @@ async function checkSupportPrompt() {
 }
 
 function showSupportModal() {
-  document.body.classList.add('modal-open');
-  supportModal.style.display = 'block';
+  supportModal.style.display = 'flex';
 }
 
 function hideSupportModal() {
-  document.body.classList.remove('modal-open');
   supportModal.style.display = 'none';
 }
 

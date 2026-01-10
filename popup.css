@@ -7,7 +7,6 @@
   
   html {
     cursor: default;
-    height: auto;
 }
 
 :root {
@@ -26,7 +25,7 @@
 
 body {
   min-width: 320px;
-  max-width: 320px;
+    max-width: 320px;
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -34,24 +33,20 @@ body {
   color-scheme: dark;
   isolation: isolate;
   cursor: default;
-  position: relative;
   /* Center when opened as full page */
-  margin: 0 auto;
-}
+    margin: 0 auto;
+  }
   
   /* When opened as full tab, add some top margin and style */
   @media (min-width: 400px) {
     html {
       background: #050508;
-      height: auto;
     }
   
     body {
-      margin-top: 40px;
+      margin-top: 60px;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      height: auto;
-      min-height: auto;
     }
 }
 
@@ -80,6 +75,30 @@ img {
   height: 24px;
   flex-shrink: 0;
 }
+
+.header-stats-btn {
+  position: absolute;
+  right: 0;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  border-radius: 6px;
+}
+
+.header-stats-btn:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.header-stats-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
 .stats-bar {
   display: none;
   flex-direction: row;
@@ -248,7 +267,8 @@ h1 {
   
   @keyframes holdFill {
     0% {
-      clip-path: polygon(50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
+      /* Start with ~20% visible on top edge so users see immediate feedback */
+      clip-path: polygon(50% 0%, 70% 0%, 70% 0%, 50% 0%, 30% 0%, 30% 0%, 50% 0%, 50% 0%);
     }
   
     100% {
@@ -753,13 +773,20 @@ h1 {
   height: 12px;
 }
 /* Support Modal */
-body.modal-open .container {
-  display: none;
-}
-
 .modal-overlay {
-  background: var(--bg-primary);
-  padding: 24px 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(12, 12, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
   animation: fadeIn 0.2s ease;
 }
 
@@ -776,44 +803,50 @@ body.modal-open .container {
 .modal {
   background: var(--surface);
   border-radius: 10px;
-  padding: 16px 20px;
-  max-width: 260px;
+    padding: 14px 16px 12px;
+    max-width: 240px;
   width: 100%;
   text-align: center;
   border: 1px solid var(--border);
   animation: slideUp 0.2s ease;
-  margin: 0 16px;
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
 }
 
 .modal-icon {
-  font-size: 20px;
-  margin-bottom: 12px;
+  font-size: 18px;
+    margin-bottom: 4px;
 }
 
 .modal-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 10px;
+  margin-bottom: 3px;
 }
 
 .modal-text {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
-  line-height: 1.5;
-  margin-bottom: 18px;
+  line-height: 1.4;
+    margin-bottom: 10px;
 }
 
 .modal-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 5px;
+    margin-bottom: 8px;
 }
 
 .modal-btn {
@@ -821,9 +854,9 @@ body.modal-open .container {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 11px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 10px;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.15s ease;
@@ -855,8 +888,8 @@ body.modal-open .container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding-top: 12px;
+  gap: 10px;
+    padding-top: 6px;
   border-top: 1px solid var(--border);
 }
 
@@ -864,9 +897,9 @@ body.modal-open .container {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 9px;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 2px 0;
   transition: color 0.15s ease;
 }
 
