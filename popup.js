@@ -30,6 +30,37 @@ document.getElementById('statsHeaderBtn').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('stats.html') });
 });
 
+// Chime mute toggle
+const chimeMuteBtn = document.getElementById('chimeMuteBtn');
+const chimeUnmutedIcon = document.getElementById('chimeUnmutedIcon');
+const chimeMutedIcon = document.getElementById('chimeMutedIcon');
+
+function updateChimeIcon(muted) {
+  if (muted) {
+    chimeUnmutedIcon.style.display = 'none';
+    chimeMutedIcon.style.display = 'block';
+    chimeMuteBtn.classList.add('muted');
+    chimeMuteBtn.title = 'Unmute end chime';
+  } else {
+    chimeUnmutedIcon.style.display = 'block';
+    chimeMutedIcon.style.display = 'none';
+    chimeMuteBtn.classList.remove('muted');
+    chimeMuteBtn.title = 'Mute end chime';
+  }
+}
+
+// Load initial mute state
+chrome.storage.sync.get(['chimeMuted']).then(result => {
+  updateChimeIcon(result.chimeMuted || false);
+});
+
+chimeMuteBtn.addEventListener('click', async () => {
+  const result = await chrome.storage.sync.get(['chimeMuted']);
+  const newMuted = !result.chimeMuted;
+  await chrome.storage.sync.set({ chimeMuted: newMuted });
+  updateChimeIcon(newMuted);
+});
+
 // Hold-to-disable logic
 function startHold() {
   if (!blockingToggle.checked) return; // Only for turning OFF
