@@ -231,15 +231,26 @@ h1 {
 
 .toggle-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+}
+
+.toggle-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .hold-hint {
   font-size: 11px;
   color: var(--text-muted);
-  text-align: right;
-  margin-top: 6px;
   opacity: 0;
   transition: opacity 0.2s ease;
   display: none;
@@ -305,11 +316,18 @@ h1 {
   font-weight: 600;
 }
 
-.toggle-text.active::after {
-  content: ' · ACTIVE';
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+.active-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  opacity: 0;
+  display: none;
+  transition: opacity 0.2s ease;
+}
+
+.active-label.visible {
+  opacity: 1;
+  display: block;
 }
 
 .toggle-input {
