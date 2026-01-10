@@ -799,10 +799,12 @@ async function checkSupportPrompt() {
 }
 
 function showSupportModal() {
-  supportModal.style.display = 'flex';
+  document.body.classList.add('modal-open');
+  supportModal.style.display = 'block';
 }
 
 function hideSupportModal() {
+  document.body.classList.remove('modal-open');
   supportModal.style.display = 'none';
 }
 

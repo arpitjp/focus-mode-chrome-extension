@@ -7,6 +7,7 @@
   
   html {
     cursor: default;
+    height: auto;
 }
 
 :root {
@@ -25,7 +26,7 @@
 
 body {
   min-width: 320px;
-    max-width: 320px;
+  max-width: 320px;
   font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -33,20 +34,24 @@ body {
   color-scheme: dark;
   isolation: isolate;
   cursor: default;
+  position: relative;
   /* Center when opened as full page */
-    margin: 0 auto;
-  }
+  margin: 0 auto;
+}
   
   /* When opened as full tab, add some top margin and style */
   @media (min-width: 400px) {
     html {
       background: #050508;
+      height: auto;
     }
   
     body {
-      margin-top: 60px;
+      margin-top: 40px;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      height: auto;
+      min-height: auto;
     }
 }
 
@@ -748,20 +753,13 @@ h1 {
   height: 12px;
 }
 /* Support Modal */
+body.modal-open .container {
+  display: none;
+}
+
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(12, 12, 20, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
+  background: var(--bg-primary);
+  padding: 24px 16px;
   animation: fadeIn 0.2s ease;
 }
 
@@ -777,59 +775,53 @@ h1 {
 
 .modal {
   background: var(--surface);
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 10px;
+  padding: 16px 20px;
   max-width: 260px;
   width: 100%;
   text-align: center;
   border: 1px solid var(--border);
-  animation: slideUp 0.25s ease;
+  animation: slideUp 0.2s ease;
+  margin: 0 16px;
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .modal-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
+  font-size: 20px;
+  margin-bottom: 12px;
 }
 
 .modal-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .modal-text {
   font-size: 11px;
   color: var(--text-muted);
   line-height: 1.5;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .modal-actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .modal-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 9px 12px;
+  gap: 5px;
+  padding: 10px 12px;
   border-radius: 8px;
   font-size: 11px;
   font-weight: 500;
@@ -863,8 +855,8 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding-top: 10px;
+  gap: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border);
 }
 
