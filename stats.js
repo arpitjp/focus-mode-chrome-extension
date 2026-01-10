@@ -120,9 +120,12 @@ function formatShortTime(minutes) {
   return mins > 0 ? `${hours}h${mins}m` : `${hours}h`;
 }
 
-// Get date key
+// Get date key (LOCAL timezone, not UTC - matches background.js)
 function getDateKey(date) {
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // Get day label (short)
@@ -545,7 +548,12 @@ nextBtn.addEventListener('click', () => {
 
 // Listen for storage changes (for real-time updates)
 chrome.storage.onChanged.addListener((changes, areaName) => {
+  // Handle sync storage changes
   if (areaName === 'sync' && (changes.stats || changes.blockingEnabled || changes.blockingStartTime)) {
+    loadStats();
+  }
+  // Handle local storage changes (accumulated minutes from idle detection)
+  if (areaName === 'local' && changes.accumulatedMinutes) {
     loadStats();
   }
 });

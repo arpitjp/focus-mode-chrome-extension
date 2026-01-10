@@ -144,19 +144,27 @@ function formatStatsTime(minutes) {
   }
 }
 
+// Get date key (LOCAL timezone - matches background.js)
+function getDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Calculate streak from stats
 function calculateStreak(stats) {
   let streakCount = 0;
   const today = new Date();
   let checkDate = new Date(today);
-  const todayKey = today.toISOString().split('T')[0];
+  const todayKey = getDateKey(today);
   
   if (!stats.daily[todayKey]) {
     checkDate.setDate(checkDate.getDate() - 1);
   }
   
   while (true) {
-    const dateKey = checkDate.toISOString().split('T')[0];
+    const dateKey = getDateKey(checkDate);
     if (stats.daily[dateKey] > 0) {
       streakCount++;
       checkDate.setDate(checkDate.getDate() - 1);
@@ -187,7 +195,7 @@ async function displayStatsHighlight() {
     }
     
     const today = new Date();
-    const todayKey = today.toISOString().split('T')[0];
+    const todayKey = getDateKey(today);
     const todayMinutes = (stats.daily[todayKey] || 0) + currentSessionMinutes;
     const totalMinutes = (stats.totalMinutes || 0) + currentSessionMinutes;
     
@@ -308,15 +316,24 @@ function escapeHtml(text) {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== 'sync' && areaName !== 'local') return;
   
-  // Handle blocking state changes
+  // Handle blocking state changes (including from other devices via sync)
   if (changes.blockingEnabled !== undefined) {
     const isEnabled = changes.blockingEnabled.newValue;
     if (isEnabled === false) {
       blockingToggle.checked = false;
       durationContainer.style.display = 'none';
       stopCountdown();
-    } else {
+      updateToggleTitle(false);
+    } else if (isEnabled === true) {
       blockingToggle.checked = true;
+      durationContainer.style.display = 'block';
+      updateToggleTitle(true);
+      // Check if there's an end time to show countdown
+      chrome.storage.sync.get(['blockingEndTime', 'blockingDuration']).then(result => {
+        if (result.blockingEndTime && result.blockingDuration !== 'infinite') {
+          startCountdown(result.blockingEndTime);
+        }
+      });
     }
     updateHoldHint(isEnabled);
     // Update stats bar visibility based on blocking state
@@ -330,6 +347,16 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   // Handle blocked sites updated (e.g., from sync)
   if (changes.blockedSites?.newValue) {
     displayBlockedSites(changes.blockedSites.newValue);
+  }
+  
+  // Handle timer end time changes (from sync)
+  if (changes.blockingEndTime !== undefined && areaName === 'sync') {
+    const endTime = changes.blockingEndTime.newValue;
+    if (endTime && blockingToggle.checked) {
+      startCountdown(endTime);
+    } else if (!endTime) {
+      stopCountdown();
+    }
   }
 });
 
@@ -437,6 +464,9 @@ function stopCountdown() {
 }
 
 // Get duration in minutes (returns null for infinite)
+// Max 24 hours (1440 minutes) to prevent setTimeout overflow issues
+const MAX_TIMER_MINUTES = 1440;
+
 function getDurationMinutes() {
   const selectedValue = durationSelect.value;
   if (selectedValue === 'infinite') {
@@ -444,9 +474,12 @@ function getDurationMinutes() {
   }
   if (selectedValue === 'custom') {
     const customMins = parseInt(customMinutes.value, 10);
-    return customMins && customMins > 0 ? customMins : null;
+    if (!customMins || customMins <= 0) return null;
+    // Cap at 24 hours
+    return Math.min(customMins, MAX_TIMER_MINUTES);
   }
-  return parseFloat(selectedValue);
+  const mins = parseFloat(selectedValue);
+  return mins > 0 ? Math.min(mins, MAX_TIMER_MINUTES) : null;
 }
 
 // Display blocked sites list
@@ -780,17 +813,27 @@ importFile.addEventListener('change', async (e) => {
       const mergedDaily = { ...existingStats.daily };
       let addedMinutes = 0;
       
+      // Date key validation regex (YYYY-MM-DD)
+      const dateKeyRegex = /^\d{4}-\d{2}-\d{2}$/;
+      
       for (const [date, mins] of Object.entries(data.stats.daily)) {
+        // Validate date format
+        if (!dateKeyRegex.test(date)) continue;
+        
+        // Validate minutes is a reasonable positive number
+        if (typeof mins !== 'number' || !Number.isFinite(mins) || mins < 0 || mins > 1440) continue;
+        
+        const sanitizedMins = Math.floor(mins);
         const existing = mergedDaily[date] || 0;
-        if (mins > existing) {
-          addedMinutes += (mins - existing);
-          mergedDaily[date] = mins;
+        if (sanitizedMins > existing) {
+          addedMinutes += (sanitizedMins - existing);
+          mergedDaily[date] = sanitizedMins;
         }
       }
       
       const mergedStats = {
         daily: mergedDaily,
-        totalMinutes: existingStats.totalMinutes + addedMinutes
+        totalMinutes: (existingStats.totalMinutes || 0) + addedMinutes
       };
       
       await saveToStorage({ stats: mergedStats });
