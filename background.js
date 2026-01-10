@@ -5,7 +5,7 @@ const RULE_ID_START = 1;
 let initialized = false;
 
 // Session tracking constants
-const MAX_SESSION_MINUTES = 480; // 8 hours max per session (even for infinite)
+const MAX_SESSION_MINUTES = 1440; // 24 hours - sanity cap to catch bugs, not limit users
 const IDLE_THRESHOLD_SECONDS = 300; // 5 minutes idle = pause session
 const SLEEP_GAP_MINUTES = 10; // If last heartbeat was > 10 min ago, assume sleep/restart
 
@@ -410,14 +410,14 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
 });
 
-// Check if session has exceeded max cap (for infinite sessions)
+// Check session sanity (catches bugs, not meant to limit users)
+// With idle detection + heartbeat, this should rarely trigger
 async function checkSessionCap() {
   try {
-    const result = await chrome.storage.sync.get(['blockingEnabled', 'blockingStartTime', 'blockingDuration']);
+    const result = await chrome.storage.sync.get(['blockingEnabled', 'blockingStartTime']);
     const localResult = await chrome.storage.local.get(['accumulatedMinutes']);
     
-    // Only check infinite sessions (timed sessions have their own end)
-    if (!result.blockingEnabled || result.blockingDuration !== 'infinite') return;
+    if (!result.blockingEnabled) return;
     
     const startTime = result.blockingStartTime;
     const accumulated = localResult.accumulatedMinutes || 0;
@@ -426,21 +426,16 @@ async function checkSessionCap() {
       const sessionMinutes = Math.floor((Date.now() - startTime) / 60000);
       const totalMinutes = accumulated + sessionMinutes;
       
+      // 24 hour sanity cap - if reached, something's wrong (idle detection should have kicked in)
       if (totalMinutes >= MAX_SESSION_MINUTES) {
-        // Max reached - finalize, play chime, but keep blocking enabled
-        // User needs to manually restart or turn off
+        // Save what we have and start fresh segment
         await finalizeSession();
-        
-        // Start fresh session segment (blocking stays on)
         await chrome.storage.sync.set({ blockingStartTime: Date.now() });
         await chrome.storage.local.set({ 
           lastHeartbeat: Date.now(),
           accumulatedMinutes: 0,
           wasIdle: false 
         });
-        
-        // Notify user they hit the cap
-        playChime();
       }
     }
   } catch (e) {}
