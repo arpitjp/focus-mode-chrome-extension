@@ -171,11 +171,19 @@ function calculateStreak(stats) {
 async function displayStatsHighlight() {
   try {
     const result = await chrome.storage.sync.get(['stats', 'blockingEnabled', 'blockingStartTime']);
+    const localResult = await chrome.storage.local.get(['accumulatedMinutes']);
     const stats = result.stats || { daily: {}, totalMinutes: 0 };
     
+    // Calculate current session including accumulated minutes from idle pauses
     let currentSessionMinutes = 0;
-    if (result.blockingEnabled && result.blockingStartTime) {
-      currentSessionMinutes = Math.floor((Date.now() - result.blockingStartTime) / 60000);
+    const accumulated = localResult.accumulatedMinutes || 0;
+    
+    if (result.blockingEnabled) {
+      if (result.blockingStartTime) {
+        currentSessionMinutes = accumulated + Math.floor((Date.now() - result.blockingStartTime) / 60000);
+      } else {
+        currentSessionMinutes = accumulated;
+      }
     }
     
     const today = new Date();

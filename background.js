@@ -4,6 +4,11 @@ const RULE_ID_START = 1;
 // Track if we've initialized
 let initialized = false;
 
+// Session tracking constants
+const MAX_SESSION_MINUTES = 480; // 8 hours max per session (even for infinite)
+const IDLE_THRESHOLD_SECONDS = 300; // 5 minutes idle = pause session
+const SLEEP_GAP_MINUTES = 10; // If last heartbeat was > 10 min ago, assume sleep/restart
+
 // Get today's date key for stats
 function getTodayKey() {
   return new Date().toISOString().split('T')[0];
@@ -13,13 +18,16 @@ function getTodayKey() {
 async function addToDailyStats(minutes) {
   if (minutes <= 0) return;
   
+  // Cap at max session to prevent runaway stats
+  const cappedMinutes = Math.min(minutes, MAX_SESSION_MINUTES);
+  
   try {
     const result = await chrome.storage.sync.get(['stats']);
     const stats = result.stats || { daily: {}, totalMinutes: 0 };
     const today = getTodayKey();
     
-    stats.daily[today] = (stats.daily[today] || 0) + minutes;
-    stats.totalMinutes = (stats.totalMinutes || 0) + minutes;
+    stats.daily[today] = (stats.daily[today] || 0) + cappedMinutes;
+    stats.totalMinutes = (stats.totalMinutes || 0) + cappedMinutes;
     
     // Prune old daily data (keep last 90 days to stay within storage limits)
     const cutoff = new Date();
@@ -35,18 +43,130 @@ async function addToDailyStats(minutes) {
   }
 }
 
+// Update heartbeat - called periodically to track last active time
+async function updateHeartbeat() {
+  try {
+    const result = await chrome.storage.sync.get(['blockingEnabled']);
+    if (result.blockingEnabled) {
+      await chrome.storage.local.set({ lastHeartbeat: Date.now() });
+    }
+  } catch (e) {}
+}
+
+// Calculate valid session minutes (handles sleep/gaps)
+async function calculateSessionMinutes() {
+  try {
+    const syncResult = await chrome.storage.sync.get(['blockingStartTime']);
+    const localResult = await chrome.storage.local.get(['lastHeartbeat', 'accumulatedMinutes']);
+    
+    const startTime = syncResult.blockingStartTime;
+    const lastHeartbeat = localResult.lastHeartbeat || 0;
+    const accumulated = localResult.accumulatedMinutes || 0;
+    
+    if (!startTime) return accumulated;
+    
+    const now = Date.now();
+    const minutesSinceStart = Math.floor((now - startTime) / 60000);
+    
+    // Check for sleep/restart gap
+    if (lastHeartbeat > 0) {
+      const minutesSinceHeartbeat = Math.floor((now - lastHeartbeat) / 60000);
+      
+      if (minutesSinceHeartbeat > SLEEP_GAP_MINUTES) {
+        // Gap detected - only count time up to last heartbeat
+        const validMinutes = Math.floor((lastHeartbeat - startTime) / 60000);
+        return accumulated + Math.max(0, Math.min(validMinutes, MAX_SESSION_MINUTES));
+      }
+    }
+    
+    // No gap - count full time (capped)
+    return accumulated + Math.min(minutesSinceStart, MAX_SESSION_MINUTES);
+  } catch (e) {
+    return 0;
+  }
+}
+
 // Finalize current session and add to stats
 async function finalizeSession() {
   try {
     const result = await chrome.storage.sync.get(['blockingStartTime']);
-    const startTime = result.blockingStartTime;
+    const localResult = await chrome.storage.local.get(['lastHeartbeat', 'accumulatedMinutes']);
     
-    if (startTime) {
-      // Record the session duration if there's a valid start time
-      const minutes = Math.floor((Date.now() - startTime) / 60000);
+    const startTime = result.blockingStartTime;
+    const lastHeartbeat = localResult.lastHeartbeat || 0;
+    const accumulated = localResult.accumulatedMinutes || 0;
+    
+    if (startTime || accumulated > 0) {
+      let minutes = accumulated;
+      
+      if (startTime) {
+        const now = Date.now();
+        let sessionMinutes = Math.floor((now - startTime) / 60000);
+        
+        // Check for sleep/restart gap - only count time up to last heartbeat
+        if (lastHeartbeat > 0) {
+          const minutesSinceHeartbeat = Math.floor((now - lastHeartbeat) / 60000);
+          if (minutesSinceHeartbeat > SLEEP_GAP_MINUTES) {
+            // Gap detected - only count time up to last heartbeat
+            sessionMinutes = Math.floor((lastHeartbeat - startTime) / 60000);
+          }
+        }
+        
+        minutes += Math.max(0, Math.min(sessionMinutes, MAX_SESSION_MINUTES - accumulated));
+      }
+      
       await addToDailyStats(minutes);
       await chrome.storage.sync.set({ blockingStartTime: null });
+      await chrome.storage.local.set({ 
+        lastHeartbeat: null, 
+        accumulatedMinutes: 0,
+        wasIdle: false 
+      });
     }
+  } catch (e) {}
+}
+
+// Pause session (on idle) - save accumulated time without ending blocking
+async function pauseSession() {
+  try {
+    const result = await chrome.storage.sync.get(['blockingStartTime', 'blockingEnabled']);
+    const localResult = await chrome.storage.local.get(['lastHeartbeat', 'accumulatedMinutes', 'wasIdle']);
+    
+    if (!result.blockingEnabled || localResult.wasIdle) return;
+    
+    const startTime = result.blockingStartTime;
+    const lastHeartbeat = localResult.lastHeartbeat || Date.now();
+    const accumulated = localResult.accumulatedMinutes || 0;
+    
+    if (startTime) {
+      // Calculate minutes to accumulate (use last heartbeat as end point)
+      const sessionMinutes = Math.floor((lastHeartbeat - startTime) / 60000);
+      const newAccumulated = accumulated + Math.max(0, Math.min(sessionMinutes, MAX_SESSION_MINUTES - accumulated));
+      
+      // Clear start time but keep blocking enabled
+      await chrome.storage.sync.set({ blockingStartTime: null });
+      await chrome.storage.local.set({ 
+        accumulatedMinutes: newAccumulated,
+        wasIdle: true 
+      });
+    }
+  } catch (e) {}
+}
+
+// Resume session (on active after idle)
+async function resumeSession() {
+  try {
+    const result = await chrome.storage.sync.get(['blockingEnabled']);
+    const localResult = await chrome.storage.local.get(['wasIdle']);
+    
+    if (!result.blockingEnabled || !localResult.wasIdle) return;
+    
+    // Start new segment
+    await chrome.storage.sync.set({ blockingStartTime: Date.now() });
+    await chrome.storage.local.set({ 
+      wasIdle: false,
+      lastHeartbeat: Date.now()
+    });
   } catch (e) {}
 }
 
@@ -55,7 +175,29 @@ async function startSession() {
   try {
     // Finalize any existing session first (handles mid-session restarts)
     await finalizeSession();
-    await chrome.storage.sync.set({ blockingStartTime: Date.now() });
+    const now = Date.now();
+    await chrome.storage.sync.set({ blockingStartTime: now });
+    await chrome.storage.local.set({ 
+      lastHeartbeat: now,
+      accumulatedMinutes: 0,
+      wasIdle: false
+    });
+  } catch (e) {}
+}
+
+// Handle idle state changes
+async function handleIdleStateChange(state) {
+  try {
+    const result = await chrome.storage.sync.get(['blockingEnabled']);
+    if (!result.blockingEnabled) return;
+    
+    if (state === 'idle' || state === 'locked') {
+      // User went idle - pause session to stop counting
+      await pauseSession();
+    } else if (state === 'active') {
+      // User became active - resume session
+      await resumeSession();
+    }
   } catch (e) {}
 }
 
@@ -166,26 +308,84 @@ async function initialize() {
     }
   } catch (e) {}
   
-  // Clean up orphaned blockingStartTime if blocking is disabled
+  // Handle Chrome restart / sleep wake scenario
   try {
     const result = await chrome.storage.sync.get(['blockingEnabled', 'blockingStartTime']);
-    if (!result.blockingEnabled && result.blockingStartTime) {
-      await chrome.storage.sync.set({ blockingStartTime: null });
+    const localResult = await chrome.storage.local.get(['lastHeartbeat', 'accumulatedMinutes']);
+    
+    if (!result.blockingEnabled) {
+      // Blocking is off - clean up any orphaned data
+      if (result.blockingStartTime || localResult.accumulatedMinutes) {
+        await chrome.storage.sync.set({ blockingStartTime: null });
+        await chrome.storage.local.set({ 
+          lastHeartbeat: null, 
+          accumulatedMinutes: 0,
+          wasIdle: false 
+        });
+      }
+    } else if (result.blockingStartTime) {
+      // Blocking is on with active session - check for gaps/caps
+      const now = Date.now();
+      const lastHeartbeat = localResult.lastHeartbeat || result.blockingStartTime;
+      const minutesSinceHeartbeat = Math.floor((now - lastHeartbeat) / 60000);
+      const totalSessionMinutes = Math.floor((now - result.blockingStartTime) / 60000);
+      const accumulated = localResult.accumulatedMinutes || 0;
+      
+      if (minutesSinceHeartbeat > SLEEP_GAP_MINUTES) {
+        // Chrome restarted or woke from sleep - save time up to last heartbeat
+        const validMinutes = Math.floor((lastHeartbeat - result.blockingStartTime) / 60000);
+        const cappedMinutes = Math.min(validMinutes, MAX_SESSION_MINUTES);
+        
+        if (cappedMinutes > 0 || accumulated > 0) {
+          await addToDailyStats(accumulated + cappedMinutes);
+        }
+        
+        // Start fresh segment
+        await chrome.storage.sync.set({ blockingStartTime: now });
+        await chrome.storage.local.set({ 
+          lastHeartbeat: now, 
+          accumulatedMinutes: 0,
+          wasIdle: false 
+        });
+      } else if (totalSessionMinutes + accumulated >= MAX_SESSION_MINUTES) {
+        // Session exceeded max - finalize and start fresh
+        await finalizeSession();
+        await chrome.storage.sync.set({ blockingStartTime: now });
+        await chrome.storage.local.set({ 
+          lastHeartbeat: now, 
+          accumulatedMinutes: 0,
+          wasIdle: false 
+        });
+      } else {
+        // Normal resume - just update heartbeat
+        await chrome.storage.local.set({ lastHeartbeat: now });
+      }
     }
+  } catch (e) {}
+  
+  // Set up idle detection (5 min threshold)
+  try {
+    chrome.idle.setDetectionInterval(IDLE_THRESHOLD_SECONDS);
+    chrome.idle.onStateChanged.addListener(handleIdleStateChange);
   } catch (e) {}
   
   await updateBlockingRules();
   await checkBlockingTimer();
   await reblockTabsAfterReload();
   
-  // Set up alarm for periodic timer check (backup for service worker sleep)
+  // Set up alarms for periodic checks
   chrome.alarms.create('checkBlockingTimer', { periodInMinutes: 1 });
+  chrome.alarms.create('heartbeat', { periodInMinutes: 1 }); // Heartbeat every minute
 }
 
 // Handle alarms
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'checkBlockingTimer') {
-    checkBlockingTimer();
+    await checkBlockingTimer();
+    await checkSessionCap();
+  }
+  if (alarm.name === 'heartbeat') {
+    await updateHeartbeat();
   }
   if (alarm.name === 'focusTimerEnd') {
     // Timer ended - finalize session, disable blocking and play chime
@@ -209,6 +409,42 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     }
   }
 });
+
+// Check if session has exceeded max cap (for infinite sessions)
+async function checkSessionCap() {
+  try {
+    const result = await chrome.storage.sync.get(['blockingEnabled', 'blockingStartTime', 'blockingDuration']);
+    const localResult = await chrome.storage.local.get(['accumulatedMinutes']);
+    
+    // Only check infinite sessions (timed sessions have their own end)
+    if (!result.blockingEnabled || result.blockingDuration !== 'infinite') return;
+    
+    const startTime = result.blockingStartTime;
+    const accumulated = localResult.accumulatedMinutes || 0;
+    
+    if (startTime) {
+      const sessionMinutes = Math.floor((Date.now() - startTime) / 60000);
+      const totalMinutes = accumulated + sessionMinutes;
+      
+      if (totalMinutes >= MAX_SESSION_MINUTES) {
+        // Max reached - finalize, play chime, but keep blocking enabled
+        // User needs to manually restart or turn off
+        await finalizeSession();
+        
+        // Start fresh session segment (blocking stays on)
+        await chrome.storage.sync.set({ blockingStartTime: Date.now() });
+        await chrome.storage.local.set({ 
+          lastHeartbeat: Date.now(),
+          accumulatedMinutes: 0,
+          wasIdle: false 
+        });
+        
+        // Notify user they hit the cap
+        playChime();
+      }
+    }
+  } catch (e) {}
+}
 
 // Set precise timer using setTimeout (more accurate than alarms for short durations)
 function setTimerAlarm(endTime) {

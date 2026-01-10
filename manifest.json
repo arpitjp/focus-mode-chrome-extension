@@ -16,7 +16,8 @@
     "scripting",
     "alarms",
     "offscreen",
-    "management"
+    "management",
+    "idle"
   ],
   "host_permissions": [
     "<all_urls>"

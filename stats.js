@@ -238,12 +238,21 @@ function calculateLongestStreak() {
 async function loadStats() {
   try {
     const result = await chrome.storage.sync.get(['stats', 'blockingEnabled', 'blockingStartTime']);
+    const localResult = await chrome.storage.local.get(['accumulatedMinutes']);
     statsData = result.stats || { daily: {}, totalMinutes: 0 };
     
     // Calculate current session time if blocking is active
+    // Includes accumulated minutes from paused segments (idle detection)
     currentSessionMinutes = 0;
-    if (result.blockingEnabled && result.blockingStartTime) {
-      currentSessionMinutes = Math.floor((Date.now() - result.blockingStartTime) / 60000);
+    const accumulated = localResult.accumulatedMinutes || 0;
+    
+    if (result.blockingEnabled) {
+      if (result.blockingStartTime) {
+        currentSessionMinutes = accumulated + Math.floor((Date.now() - result.blockingStartTime) / 60000);
+      } else {
+        // Session paused (idle) - just show accumulated
+        currentSessionMinutes = accumulated;
+      }
     }
     
     // Find earliest date with data
@@ -542,10 +551,19 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 // Update current session time periodically
-setInterval(() => {
-  chrome.storage.sync.get(['blockingEnabled', 'blockingStartTime'], (result) => {
-    if (result.blockingEnabled && result.blockingStartTime) {
-      const newSessionMinutes = Math.floor((Date.now() - result.blockingStartTime) / 60000);
+setInterval(async () => {
+  try {
+    const result = await chrome.storage.sync.get(['blockingEnabled', 'blockingStartTime']);
+    const localResult = await chrome.storage.local.get(['accumulatedMinutes']);
+    
+    if (result.blockingEnabled) {
+      const accumulated = localResult.accumulatedMinutes || 0;
+      let newSessionMinutes = accumulated;
+      
+      if (result.blockingStartTime) {
+        newSessionMinutes = accumulated + Math.floor((Date.now() - result.blockingStartTime) / 60000);
+      }
+      
       if (newSessionMinutes !== currentSessionMinutes) {
         currentSessionMinutes = newSessionMinutes;
         updateSummary();
@@ -553,7 +571,7 @@ setInterval(() => {
         updateStats();
       }
     }
-  });
+  } catch (e) {}
 }, 60000); // Update every minute
 
 // Initialize
