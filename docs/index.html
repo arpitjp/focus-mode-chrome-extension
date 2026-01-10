@@ -342,7 +342,7 @@
     }
 
     .screenshot-popup {
-      max-width: 240px;
+      max-width: 320px;
       transform: 
         translateY(var(--parallax-y, 0)) 
         translateX(var(--mouse-x, 0px))
@@ -355,7 +355,7 @@
     }
 
     .screenshot-stats {
-      max-width: 420px;
+      max-width: 560px;
       transform: 
         translateY(var(--parallax-y2, 0)) 
         translateX(var(--mouse-x, 0px))
@@ -365,6 +365,12 @@
         rotateY(var(--tilt-y, 0deg))
         scale(var(--parallax-scale2, 1));
       transform-style: preserve-3d;
+    }
+
+    /* Mask to reveal more on scroll */
+    .screenshot-wrapper {
+      -webkit-mask-image: linear-gradient(to bottom, black 0%, black var(--reveal-mask, 60%), transparent var(--reveal-mask, 60%));
+      mask-image: linear-gradient(to bottom, black 0%, black var(--reveal-mask, 60%), transparent var(--reveal-mask, 60%));
     }
 
     /* Features Section */
@@ -854,6 +860,7 @@
     // Elements
     const screenshotPopup = document.querySelector('.screenshot-popup');
     const screenshotStats = document.querySelector('.screenshot-stats');
+    const screenshotWrapper = document.querySelector('.screenshot-wrapper');
     const hero = document.querySelector('.hero');
     const heroContent = document.querySelector('.hero-content');
     const logoIcon = document.querySelector('.logo-icon');
@@ -864,20 +871,26 @@
       const scrolled = window.scrollY;
       const windowHeight = window.innerHeight;
       
+      // Reveal mask - starts at 50%, goes to 100% as you scroll
+      if (screenshotWrapper) {
+        const revealPercent = Math.min(50 + scrolled * 0.15, 100);
+        screenshotWrapper.style.setProperty('--reveal-mask', `${revealPercent}%`);
+      }
+      
       // Multi-layer screenshot parallax with scale
       if (screenshotPopup) {
-        const y1 = scrolled * 0.4;
-        const rotation1 = Math.min(scrolled * 0.025, 12);
-        const scale1 = 1 - Math.min(scrolled * 0.0003, 0.15);
+        const y1 = scrolled * 0.25;
+        const rotation1 = Math.min(scrolled * 0.02, 10);
+        const scale1 = 1 - Math.min(scrolled * 0.0002, 0.1);
         screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
         screenshotPopup.style.setProperty('--parallax-rotate', `${rotation1}deg`);
         screenshotPopup.style.setProperty('--parallax-scale', scale1);
       }
       
       if (screenshotStats) {
-        const y2 = scrolled * 0.2;
-        const rotation2 = Math.min(scrolled * 0.015, 8);
-        const scale2 = 1 - Math.min(scrolled * 0.0002, 0.1);
+        const y2 = scrolled * 0.12;
+        const rotation2 = Math.min(scrolled * 0.012, 6);
+        const scale2 = 1 - Math.min(scrolled * 0.00015, 0.08);
         screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
         screenshotStats.style.setProperty('--parallax-rotate2', `${rotation2}deg`);
         screenshotStats.style.setProperty('--parallax-scale2', scale2);
@@ -885,15 +898,15 @@
       
       // Hero content fades and moves up slower
       if (heroContent) {
-        const opacity = Math.max(1 - scrolled * 0.002, 0);
-        const y = scrolled * 0.3;
+        const opacity = Math.max(1 - scrolled * 0.0015, 0);
+        const y = scrolled * 0.25;
         heroContent.style.opacity = opacity;
         heroContent.style.transform = `translateY(${y}px)`;
       }
       
       // Background glow parallax
       if (bgGlow) {
-        bgGlow.style.transform = `translateY(${scrolled * 0.1}px)`;
+        bgGlow.style.transform = `translateY(${scrolled * 0.08}px)`;
       }
       
       // Reveal animations
