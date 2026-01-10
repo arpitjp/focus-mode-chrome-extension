@@ -1,64 +1,57 @@
 # Chrome Web Store Listing
 
 ## Extension Name
-**Focus Mode - Website Blocker for Productivity**
+**Focus Mode - Block Distracting Websites**
 
 ## Short Name (12 chars max)
 Focus Mode
 
 ## Summary (132 chars max - appears in search results)
-Block distracting websites instantly. One-click toggle, custom timers, auto-unblock. Stay productive at work & study. 100% free.
+Block distracting websites with one click. Custom timers, focus stats, streak tracking. No ads, no tracking. Free & open source.
 
 ## Description (for store listing)
 
-**🎯 One simple thing, done well.**
+**One simple thing, done well.**
 
-Focus Mode is a minimal, powerful website blocker that helps you eliminate distractions and stay focused. Whether you're working, studying, or trying to break bad browsing habits — it stays quiet and gets out of the way.
+I built Focus Mode because my brain keeps procrastinating. One second I'm working, the next I'm on Twitter "monitoring the situation" or watching YouTube. Sound familiar?
 
-**✨ Key Features:**
+So I stopped expecting willpower to save me and built this instead. When you turn it on, it blocks the websites you waste time on. Set a timer, and those sites stop loading. That's it.
 
-• **One-Click Blocking** — Toggle website blocking on/off instantly from your toolbar
-• **Custom Block List** — Add any website: YouTube, Twitter/X, Reddit, Instagram, TikTok, Facebook, and more
-• **Flexible Timers** — Block for 15 min, 30 min, 1 hour, 2 hours, or set a custom duration
-• **Infinite Mode** — Block sites until you manually turn it off
-• **Smart Wildcards** — Block entire domains including all subdomains automatically
-• **Beautiful Block Page** — Motivational screen when you try to visit blocked sites
-• **Live Countdown** — See exactly when blocking ends
-• **Badge Indicator** — Green "ON" badge shows blocking status at a glance
-• **Sync Across Devices** — Your settings sync via your Google account
-• **Zero Configuration** — Works immediately after install
+**What it does:**
 
-**🚀 Perfect For:**
+• Block any website — YouTube, Twitter/X, Reddit, Instagram, TikTok, Facebook, you name it
+• One-click toggle — No complicated settings. Just click and distractions stop
+• Hold to disable — Prevents "just one quick check" moments (you know the ones)
+• Flexible timers — 5 minutes to 2 hours, custom duration, or block indefinitely
+• Focus stats — Track your daily, weekly, monthly focus time
+• Streak tracking — See how many days you've stayed consistent
+• Smart wildcards — *youtube.com blocks all subdomains, https://youtube.com blocks exact match only
+
+**Why it's different:**
+
+Most productivity tools are distracting themselves. This one stays quiet and gets out of the way. No gamification, no social features, no premium upsells. Just a simple blocker that works.
+
+**Privacy:**
+
+• No data collection — zero analytics, zero tracking
+• No accounts required — works immediately
+• 100% local — everything stays on your device
+• Open source — see exactly what the code does
+
+**Perfect for:**
 
 • Remote workers avoiding social media rabbit holes
 • Students studying for exams
-• Professionals focusing on deep work
-• Anyone wanting to reduce screen time
-• Breaking doom-scrolling habits
+• Anyone trying to break doom-scrolling habits
+• Deep work sessions
+• Digital detox
 
-**🔒 Privacy First:**
-
-• No data collection
-• No analytics
-• No accounts required
-• Works 100% locally
-• Open source
-
-**💡 How It Works:**
-
-1. Click the Focus Mode icon
-2. Add distracting websites to your block list
-3. Toggle blocking ON
-4. Stay focused and productive!
-
-**🆓 Completely Free:**
-
-No premium tiers, no hidden features, no subscriptions. Everything is free, forever.
+**Completely free.** No premium tiers, no hidden features, no subscriptions. I built it for myself, figured I'd share.
 
 ---
 
 **Keywords to target:**
-website blocker, site blocker, focus mode, productivity, distraction blocker, block youtube, block twitter, block reddit, block instagram, block facebook, block tiktok, study tool, work focus, pomodoro, screen time, self control, stay focused, concentration, block distractions, productivity extension, focus app, website filter, social media blocker, internet blocker, chrome blocker
+website blocker, site blocker, focus mode, productivity, distraction blocker, block youtube, block twitter, block reddit, block instagram, block facebook, block tiktok, study tool, work focus, pomodoro, screen time, self control, stay focused, concentration, block distractions, productivity extension, focus app, website filter, social media blocker, internet blocker, chrome blocker, focus timer, productivity tool, work from home, remote work, digital wellbeing
 
 ---
 
@@ -70,32 +63,29 @@ English
 
 ## Screenshots Needed (1280x800 or 640x400)
 
-1. **Main popup** - Show the extension popup with blocking ON, timer running, and a few blocked sites
-2. **Blocked page** - Show the beautiful blocked page with countdown timer
-3. **Badge indicator** - Show the green "ON" badge on the extension icon
+1. **Main popup** - Show the extension popup with blocking ON and "ACTIVE" state visible
+2. **Blocked page** - Show the blocked page overlay
+3. **Stats page** - Show the focus stats with charts
 4. **Adding a site** - Show typing a website into the input field
-5. **Duration options** - Show the dropdown with timer options expanded
 
 ## Promotional Images
 
 ### Small Promo Tile (440x280)
 Dark gradient background with:
 - Focus Mode logo/icon
-- "Block Distractions"
-- "Stay Productive"
+- "One simple thing, done well."
 
 ### Large Promo Tile (920x680)
 Dark gradient background showing:
 - Extension popup screenshot
-- Key features as bullet points
-- "Free Website Blocker"
+- "Block distractions. Stay focused."
+- "Free & Open Source"
 
 ### Marquee Promo Tile (1400x560)
 Wide banner with:
 - Logo on left
-- "Focus Mode - Website Blocker"
-- "Block YouTube, Twitter, Reddit & more"
-- "One-click • Custom timers • 100% Free"
+- "Focus Mode"
+- "When willpower isn't enough."
 
 ---
 
@@ -106,12 +96,13 @@ Wide banner with:
 - [ ] Small promo tile (440x280) - optional but recommended
 - [ ] Description filled out
 - [ ] Category selected: Productivity
-- [ ] Privacy policy URL (can use GitHub repo)
+- [ ] Privacy policy URL (GitHub repo)
 - [ ] Support URL (GitHub issues)
+- [ ] Website URL
 
 ## Privacy Policy (simple version for GitHub)
 
-Focus Mode does not collect, store, or transmit any personal data. All settings (blocked websites, preferences) are stored locally in your browser using Chrome's storage API. If you're signed into Chrome, settings may sync across your devices via your Google account — this is handled entirely by Chrome, not by this extension.
+Focus Mode does not collect, store, or transmit any personal data. All settings (blocked websites, preferences, stats) are stored locally in your browser using Chrome's storage API.
 
 This extension:
 - Does NOT collect analytics
@@ -120,12 +111,13 @@ This extension:
 - Does NOT communicate with external servers
 - Is fully open source
 
-## SEO Tips Applied
+## SEO Notes
 
-1. **Name includes keywords**: "Website Blocker", "Productivity"
-2. **Description mentions popular sites**: YouTube, Twitter, Reddit, Instagram
-3. **Use cases mentioned**: work, study, focus
-4. **Features as keywords**: timer, toggle, block, productivity
-5. **Free emphasized**: appears multiple times
-6. **Privacy highlighted**: important for user trust
-
+1. **Name includes primary keyword**: "Block Distracting Websites"
+2. **Summary is scannable**: Key features separated by periods
+3. **Description tells a story**: Relatable problem → solution
+4. **Popular sites mentioned**: YouTube, Twitter, Reddit, Instagram, TikTok, Facebook
+5. **Use cases clear**: Remote work, studying, digital detox
+6. **Free emphasized**: Multiple mentions, no premium tiers
+7. **Privacy highlighted**: Important trust signal
+8. **Natural keyword integration**: Not stuffed, flows naturally
