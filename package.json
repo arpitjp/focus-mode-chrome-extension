@@ -1,6 +1,6 @@
 {
   "name": "focus-blocker",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "private": true,
   "scripts": {
     "preview": "node build.js preview",
