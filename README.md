@@ -10,7 +10,7 @@ A Chrome extension that blocks distracting websites to help you stay focused.
 <a href="https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn">
   <img src="https://img.shields.io/badge/Chrome%20Web%20Store-Install-blue?logo=googlechrome" alt="Chrome Web Store">
 </a>
-<a href="https://buymeacoffee.com/arpitjpn">
+<a href="https://buymeacoffee.com/bugs.included">
   <img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support-yellow?logo=buymeacoffee" alt="Buy Me A Coffee">
 </a>
 
