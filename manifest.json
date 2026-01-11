@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Pip - Focus Timer & Website Blocker",
   "short_name": "Pip Focus",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Block distracting websites instantly. One-click toggle, custom timers, auto-unblock. Stay productive. 100% free.",
   "author": "Bugs Included <bugs.included@gmail.com>",
   "homepage_url": "https://github.com/arpitjp/focus-mode-chrome-extension",

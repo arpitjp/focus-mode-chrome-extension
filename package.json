@@ -1,6 +1,6 @@
 {
   "name": "pip-focus",
-  "version": "1.0.15",
+  "version": "1.0.17",
   "private": true,
   "scripts": {
     "preview": "node build.js preview",
