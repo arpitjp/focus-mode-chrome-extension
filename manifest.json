@@ -4,7 +4,7 @@
   "short_name": "Focus Mode",
   "version": "1.0.14",
   "description": "Block distracting websites instantly. One-click toggle, custom timers, auto-unblock. Stay productive. 100% free.",
-  "author": "Arpit Jain <arpitjp@gmail.com>",
+  "author": "Bugs Included <bugs.included@gmail.com>",
   "homepage_url": "https://github.com/arpitjp/focus-mode-chrome-extension",
   "permissions": [
     "declarativeNetRequest",
