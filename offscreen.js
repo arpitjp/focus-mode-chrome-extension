@@ -25,7 +25,7 @@ async function playChime() {
   try {
     // Reuse existing audio element or create once
     if (!audioElement) {
-      audioElement = new Audio(chrome.runtime.getURL('assets/ding.mp3'));
+      audioElement = new Audio(chrome.runtime.getURL('docs/assets/ding.mp3'));
     }
     // Reset to start in case still playing
     audioElement.currentTime = 0;

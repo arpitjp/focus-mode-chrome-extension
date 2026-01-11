@@ -24,7 +24,7 @@ const FILES_TO_COPY = [
   'icon16.png',
   'icon48.png',
   'icon128.png',
-  'assets/ding.mp3'
+  'docs/assets/ding.mp3'
 ];
 
 async function build() {
