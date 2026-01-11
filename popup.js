@@ -7,9 +7,26 @@ const addSiteBtn = document.getElementById('addSiteBtn');
 const blockedSitesList = document.getElementById('blockedSitesList');
 const blockedSitesSection = document.getElementById('blockedSitesSection');
 const sitesDivider = document.getElementById('sitesDivider');
-const durationContainer = document.getElementById('durationContainer');
-const durationSelect = document.getElementById('durationSelect');
-const customDuration = document.getElementById('customDuration');
+const inlineDuration = document.getElementById('inlineDuration');
+const durationTrigger = document.getElementById('durationTrigger');
+const durationValue = document.getElementById('durationValue');
+const durationDropdown = document.getElementById('durationDropdown');
+const customDurationRow = document.getElementById('customDurationRow');
+
+// Duration display labels
+const durationLabels = {
+  'infinite': '∞',
+  '0.083': '5s',
+  '5': '5m',
+  '10': '10m',
+  '15': '15m',
+  '30': '30m',
+  '60': '1h',
+  '120': '2h',
+  'custom': '...'
+};
+
+let selectedDuration = 'infinite';
 const customMinutes = document.getElementById('customMinutes');
 const timerText = document.getElementById('timerText');
 const statsBar = document.getElementById('statsBar');
@@ -274,42 +291,53 @@ async function displayStatsHighlight() {
     // Build all possible highlights (equal priority - randomly choose one)
     const highlights = [];
     
+    // SVG icons matching theme
+    const icons = {
+      bolt: '<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+      calendar: '<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+      trophy: '<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M12 17v4M8 21h8"/><path d="M6 3v6a6 6 0 0 0 12 0V3"/></svg>',
+      star: '<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+      flame: '<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+      target: '<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+      trend: '<svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'
+    };
+    
     // Today
     if (todayMinutes > 0) {
-      highlights.push(`💪 Crushed <strong>${formatStatsTime(todayMinutes)}</strong> today`);
+      highlights.push(`${icons.bolt} <strong>${formatStatsTime(todayMinutes)}</strong> today`);
     }
     
     // This week
     if (weekMinutes > 0) {
-      highlights.push(`🚀 <strong>${formatStatsTime(weekMinutes)}</strong> this week`);
+      highlights.push(`${icons.calendar} <strong>${formatStatsTime(weekMinutes)}</strong> this week`);
     }
     
     // This month
     if (monthMinutes > 0) {
-      highlights.push(`🏆 <strong>${formatStatsTime(monthMinutes)}</strong> this month`);
+      highlights.push(`${icons.trophy} <strong>${formatStatsTime(monthMinutes)}</strong> this month`);
     }
     
     // Total
     if (totalMinutes > 0) {
-      highlights.push(`⭐ <strong>${formatStatsTime(totalMinutes)}</strong> total focus`);
+      highlights.push(`${icons.star} <strong>${formatStatsTime(totalMinutes)}</strong> total focus`);
     }
     
     // Current streak (only if > 1 day)
     if (currentStreak > 1) {
-      highlights.push(`🔥 <strong>${currentStreak} day</strong> streak!`);
+      highlights.push(`${icons.flame} <strong>${currentStreak} day</strong> streak`);
     }
     
     // Total days active
     if (focusDays > 0) {
-      highlights.push(`🎯 <strong>${focusDays}</strong> days of focus`);
+      highlights.push(`${icons.target} <strong>${focusDays}</strong> days focused`);
     }
     
     // Daily average (past week)
     if (avgDaily > 0 && weekDaysWithData >= 2) {
-      highlights.push(`📈 <strong>${formatStatsTime(avgDaily)}</strong> daily avg`);
+      highlights.push(`${icons.trend} <strong>${formatStatsTime(avgDaily)}</strong> daily avg`);
     }
     
-    // Only show stats if user has completed at least one focus session AND blocking is OFF
+    // Only show stats if user has completed at least one focus session
     const hasCompletedSession = totalMinutes > 0 || Object.keys(stats.daily).length > 0;
     
     // Hide stats, blocked sites, and footer when session is active - keep focus on the task
@@ -358,12 +386,14 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     const isEnabled = changes.blockingEnabled.newValue;
     if (isEnabled === false) {
       blockingToggle.checked = false;
-      durationContainer.style.display = 'none';
+      inlineDuration.classList.remove('hidden');
+      customDurationRow.style.display = 'none';
       stopCountdown();
       updateToggleTitle(false);
     } else if (isEnabled === true) {
       blockingToggle.checked = true;
-      durationContainer.style.display = 'block';
+      inlineDuration.classList.add('hidden');
+      customDurationRow.style.display = 'none';
       updateToggleTitle(true);
       // Check if there's an end time to show countdown
       chrome.storage.sync.get(['blockingEndTime', 'blockingDuration']).then(result => {
@@ -429,22 +459,28 @@ async function loadState() {
     displayBlockedSites(blockedSites);
     
     // Set the last selected duration option
-    durationSelect.value = lastDurationOption;
+    updateDurationDisplay(lastDurationOption);
     if (lastDurationOption === 'custom' && lastCustomMinutes) {
       customMinutes.value = lastCustomMinutes;
-      customDuration.style.display = 'flex';
-    } else {
-      customDuration.style.display = 'none';
     }
     
-    // Show duration dropdown if enabled
+    // Show/hide duration selector based on blocking state
+    // When OFF: show inline duration selector
+    // When ON: hide it (session is active)
     if (blockingEnabled) {
-      durationContainer.style.display = 'block';
+      inlineDuration.classList.add('hidden');
+      customDurationRow.style.display = 'none';
       if (blockingEndTime && blockingDuration !== 'infinite') {
         startCountdown(blockingEndTime);
       }
     } else {
-      durationContainer.style.display = 'none';
+      inlineDuration.classList.remove('hidden');
+      // Show custom input row if custom is selected
+      if (lastDurationOption === 'custom') {
+        customDurationRow.style.display = 'flex';
+      } else {
+        customDurationRow.style.display = 'none';
+      }
       stopCountdown();
     }
   } catch (e) {
@@ -505,17 +541,16 @@ function stopCountdown() {
 const MAX_TIMER_MINUTES = 1440;
 
 function getDurationMinutes() {
-  const selectedValue = durationSelect.value;
-  if (selectedValue === 'infinite') {
+  if (selectedDuration === 'infinite') {
     return null;
   }
-  if (selectedValue === 'custom') {
+  if (selectedDuration === 'custom') {
     const customMins = parseInt(customMinutes.value, 10);
     if (!customMins || customMins <= 0) return null;
     // Cap at 24 hours
     return Math.min(customMins, MAX_TIMER_MINUTES);
   }
-  const mins = parseFloat(selectedValue);
+  const mins = parseFloat(selectedDuration);
   return mins > 0 ? Math.min(mins, MAX_TIMER_MINUTES) : null;
 }
 
@@ -577,7 +612,6 @@ function displayBlockedSites(sites) {
 // Handle toggle change
 async function handleToggleChange() {
   const enabled = blockingToggle.checked;
-  const selectedDuration = durationSelect.value;
   
   // Save the last selected duration option
   await saveToStorage({ 
@@ -590,7 +624,9 @@ async function handleToggleChange() {
   displayBlockedSites(result.blockedSites ?? []);
   
   if (enabled) {
-    durationContainer.style.display = 'block';
+    // Hide duration selector when session is active
+    inlineDuration.classList.add('hidden');
+    customDurationRow.style.display = 'none';
     await saveToStorage({ blockingEnabled: enabled });
     
     const durationMinutes = getDurationMinutes();
@@ -620,8 +656,9 @@ async function handleToggleChange() {
       chrome.runtime.sendMessage({ action: 'updateBlocking', enabled }).catch(() => {});
     }
   } else {
-    durationContainer.style.display = 'none';
-    customDuration.style.display = 'none';
+    // Show duration selector when session ends
+    inlineDuration.classList.remove('hidden');
+    customDurationRow.style.display = 'none';
     stopCountdown();
     // Don't clear blockingStartTime here - let background.js finalizeSession() read it first
     // to save the accumulated stats before clearing
@@ -634,20 +671,62 @@ async function handleToggleChange() {
   }
 }
 
-// Handle duration selection change
-durationSelect.addEventListener('change', async () => {
-  const selectedValue = durationSelect.value;
+// Custom dropdown logic
+function openDurationDropdown() {
+  durationTrigger.classList.add('open');
+  durationDropdown.classList.add('open');
+}
+
+function closeDurationDropdown() {
+  durationTrigger.classList.remove('open');
+  durationDropdown.classList.remove('open');
+}
+
+function updateDurationDisplay(value) {
+  selectedDuration = value;
+  durationValue.textContent = durationLabels[value] || value;
+  
+  // Update selected state in dropdown
+  durationDropdown.querySelectorAll('.duration-option').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.value === value);
+  });
+}
+
+durationTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (durationDropdown.classList.contains('open')) {
+    closeDurationDropdown();
+  } else {
+    openDurationDropdown();
+  }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!inlineDuration.contains(e.target)) {
+    closeDurationDropdown();
+  }
+});
+
+// Handle option selection
+durationDropdown.addEventListener('click', async (e) => {
+  const option = e.target.closest('.duration-option');
+  if (!option) return;
+  
+  const value = option.dataset.value;
+  updateDurationDisplay(value);
+  closeDurationDropdown();
   
   await saveToStorage({ 
-    lastDurationOption: selectedValue,
-    lastCustomMinutes: selectedValue === 'custom' ? customMinutes.value : null
+    lastDurationOption: value,
+    lastCustomMinutes: value === 'custom' ? customMinutes.value : null
   });
   
-  if (selectedValue === 'custom') {
-    customDuration.style.display = 'flex';
+  if (value === 'custom') {
+    customDurationRow.style.display = 'flex';
     customMinutes.focus();
   } else {
-    customDuration.style.display = 'none';
+    customDurationRow.style.display = 'none';
     if (blockingToggle.checked) {
       handleToggleChange();
     }
@@ -662,7 +741,7 @@ customMinutes.addEventListener('input', () => {
   customMinutesTimeout = setTimeout(async () => {
     await saveToStorage({ lastCustomMinutes: customMinutes.value });
     
-    if (blockingToggle.checked && durationSelect.value === 'custom') {
+    if (blockingToggle.checked && selectedDuration === 'custom') {
       const minutes = getDurationMinutes();
       if (minutes && minutes > 0) {
         handleToggleChange();
@@ -897,11 +976,15 @@ importFile.addEventListener('change', async (e) => {
   importFile.value = '';
 });
 
-// Hide test timer option if not in development mode
+// Show test timer option only in development mode
 chrome.management.getSelf((info) => {
-  if (info.installType !== 'development') {
-    const testOption = document.getElementById('testTimerOption');
-    if (testOption) testOption.remove();
+  const testOption = document.getElementById('testTimerOption');
+  if (testOption) {
+    if (info.installType === 'development') {
+      testOption.classList.remove('dev-only');
+    } else {
+      testOption.remove();
+    }
   }
 });
 
