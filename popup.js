@@ -26,7 +26,7 @@ const durationLabels = {
   'custom': '...'
 };
 
-let selectedDuration = '60';
+let selectedDuration = '30';
 const customMinutes = document.getElementById('customMinutes');
 const timerText = document.getElementById('timerText');
 const statsBar = document.getElementById('statsBar');
@@ -450,7 +450,7 @@ async function loadState() {
     const blockedSites = syncResult.blockedSites ?? [];
     const blockingEndTime = syncResult.blockingEndTime ?? null;
     const blockingDuration = syncResult.blockingDuration ?? null;
-    const lastDurationOption = syncResult.lastDurationOption ?? '60';
+    const lastDurationOption = syncResult.lastDurationOption ?? '30';
     const lastCustomMinutes = syncResult.lastCustomMinutes ?? null;
     
     blockingToggle.checked = blockingEnabled;
@@ -865,7 +865,7 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = `focus-mode-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `pip-focus-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     
     URL.revokeObjectURL(url);

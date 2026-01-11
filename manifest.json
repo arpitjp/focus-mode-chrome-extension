@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Focus Mode - Website Blocker for Productivity",
-  "short_name": "Focus Mode",
-  "version": "1.0.15",
+  "name": "Pip - Focus Timer & Website Blocker",
+  "short_name": "Pip Focus",
+  "version": "1.0.16",
   "description": "Block distracting websites instantly. One-click toggle, custom timers, auto-unblock. Stay productive. 100% free.",
   "author": "Bugs Included <bugs.included@gmail.com>",
   "homepage_url": "https://github.com/arpitjp/focus-mode-chrome-extension",
@@ -28,7 +28,6 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "docs/assets/icon16.png",
       "48": "docs/assets/icon48.png",
       "128": "docs/assets/icon128.png"
     }
@@ -48,7 +47,6 @@
     }
   ],
   "icons": {
-    "16": "docs/assets/icon16.png",
     "48": "docs/assets/icon48.png",
     "128": "docs/assets/icon128.png"
   }

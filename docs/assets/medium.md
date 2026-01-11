@@ -1,12 +1,12 @@
 # I Built a Chrome Extension Because My Brain keeps Procrastinating
 
-We all know the feeling: there’s work to do, but the brain just won’t stay on one thing.
+We all know the feeling: there's work to do, but the brain just won't stay on one thing.
 
-One second I’m working, and the next I find myself on Twitter “monitoring the situation” or watching YouTube.
+One second I'm working, and the next I find myself on Twitter "monitoring the situation" or watching YouTube.
 
 It was frustrating. I had plenty of energy, just not enough discipline to aim it in the right direction.
 
-So I stopped expecting willpower to save me and built a small Chrome extension instead. It’s called Focus Mode.
+So I stopped expecting willpower to save me and built a small Chrome extension instead. It's called Pip Focus.
 
 It does one simple thing: when you turn it on, it blocks the websites you waste time on. You set a timer, and those sites stop loading.
 
@@ -21,7 +21,7 @@ Things I cared about:
 - Stats to track progress and build better habits
 - No ads, no tracking, no subscriptions
 
-![Focus Mode popup](popup.png)
+![Pip Focus popup](popup.png)
 
 ![Blocked page](blocked.png)
 
@@ -35,4 +35,4 @@ Happy working 🙂
 
 ---
 
-[Website](https://arpitjp.github.io/focus-mode-chrome-extension/) · [Get Focus Mode on Chrome Web Store](https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn)
+[Website](https://arpitjp.github.io/focus-mode-chrome-extension/) · [Get Pip Focus on Chrome Web Store](https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn)

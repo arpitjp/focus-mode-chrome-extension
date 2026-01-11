@@ -175,7 +175,7 @@
     if (!statusEl) return;
     
     if (!endTime) {
-      statusEl.textContent = 'Focus Mode active';
+      statusEl.textContent = 'Pip is keeping you focused';
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -210,7 +210,7 @@
       } else {
         timeStr = 'less than a minute';
       }
-      statusEl.textContent = `Focus Mode active · Unblocks in ${timeStr}`;
+      statusEl.textContent = `Pip is keeping you focused · Unblocks in ${timeStr}`;
     } else {
       removeOverlay();
     }
@@ -460,12 +460,12 @@
       </style>
       <div class="focus-blocker-container">
         <div class="focus-blocker-header">
-          <div class="focus-blocker-icon" id="focus-blocker-icon" title="Open Focus Mode settings">
-            <img src="${chrome.runtime.getURL('docs/assets/icon128.png')}" alt="Focus Mode">
+          <div class="focus-blocker-icon" id="focus-blocker-icon" title="Open Pip Focus settings">
+            <img src="${chrome.runtime.getURL('docs/assets/icon128.png')}" alt="Pip">
           </div>
           <div class="focus-blocker-text-group">
             <h1 class="focus-blocker-title">Access to <span class="focus-blocker-site-name">${escapeHtml(site)}</span> is blocked</h1>
-            <p class="focus-blocker-status" id="focus-blocker-status">Focus Mode active</p>
+            <p class="focus-blocker-status" id="focus-blocker-status">Pip is keeping you focused</p>
           </div>
         </div>
       </div>
@@ -487,7 +487,7 @@
       try {
         document.documentElement.appendChild(overlay);
       } catch (e2) {
-        console.error('Focus Mode: Could not show overlay', e2);
+        console.error('Pip Focus: Could not show overlay', e2);
       }
     }
     

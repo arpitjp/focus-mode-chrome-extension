@@ -68,14 +68,14 @@ function formatTimeMinutes(seconds) {
 
 function updateStatusLine() {
   if (!currentEndTime) {
-    statusLineEl.textContent = 'Focus Mode active';
+    statusLineEl.textContent = 'Pip is keeping you focused';
     return;
   }
   
   const remaining = Math.max(0, Math.floor((currentEndTime - Date.now()) / 1000));
   if (remaining > 0) {
     const timeStr = formatTimeMinutes(remaining);
-    statusLineEl.textContent = `Focus Mode active · Unblocks in ${timeStr}`;
+    statusLineEl.textContent = `Pip is keeping you focused · Unblocks in ${timeStr}`;
   } else {
     statusLineEl.textContent = 'Unblocking...';
   }
@@ -113,7 +113,7 @@ async function initialize() {
     timerInterval = setInterval(updateStatusLine, 60000); // Update every minute
     chrome.storage.onChanged.addListener(storageListener);
   } catch (e) {
-    statusLineEl.textContent = 'Focus Mode active';
+    statusLineEl.textContent = 'Pip is keeping you focused';
   }
 }
 

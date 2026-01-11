@@ -1,10 +1,10 @@
 # Chrome Web Store Listing
 
 ## Extension Name
-**Focus Mode - Block Distracting Websites**
+**Pip - Focus Timer & Website Blocker**
 
 ## Short Name (12 chars max)
-Focus Mode
+Pip Focus
 
 ## Summary (132 chars max - appears in search results)
 Block distracting websites with one click. Custom timers, focus stats, streak tracking. No ads, no tracking. Free & open source.
@@ -13,7 +13,7 @@ Block distracting websites with one click. Custom timers, focus stats, streak tr
 
 **One simple thing, done well.**
 
-I built Focus Mode because my brain keeps procrastinating. One second I'm working, the next I'm on Twitter "monitoring the situation" or watching YouTube. Sound familiar?
+I built Pip because my brain keeps procrastinating. One second I'm working, the next I'm on Twitter "monitoring the situation" or watching YouTube. Sound familiar?
 
 So I stopped expecting willpower to save me and built this instead. When you turn it on, it blocks the websites you waste time on. Set a timer, and those sites stop loading. That's it.
 
@@ -72,7 +72,7 @@ English
 
 ### Small Promo Tile (440x280)
 Dark gradient background with:
-- Focus Mode logo/icon
+- Pip logo/icon
 - "One simple thing, done well."
 
 ### Large Promo Tile (920x680)
@@ -83,8 +83,8 @@ Dark gradient background showing:
 
 ### Marquee Promo Tile (1400x560)
 Wide banner with:
-- Logo on left
-- "Focus Mode"
+- Pip logo on left
+- "Pip Focus"
 - "When willpower isn't enough."
 
 ---
@@ -102,7 +102,7 @@ Wide banner with:
 
 ## Privacy Policy (simple version for GitHub)
 
-Focus Mode does not collect, store, or transmit any personal data. All settings (blocked websites, preferences, stats) are stored locally in your browser using Chrome's storage API.
+Pip Focus does not collect, store, or transmit any personal data. All settings (blocked websites, preferences, stats) are stored locally in your browser using Chrome's storage API.
 
 This extension:
 - Does NOT collect analytics
@@ -113,7 +113,7 @@ This extension:
 
 ## SEO Notes
 
-1. **Name includes primary keyword**: "Block Distracting Websites"
+1. **Name includes primary keyword**: "Focus Timer & Website Blocker"
 2. **Summary is scannable**: Key features separated by periods
 3. **Description tells a story**: Relatable problem → solution
 4. **Popular sites mentioned**: YouTube, Twitter, Reddit, Instagram, TikTok, Facebook

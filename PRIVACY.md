@@ -1,10 +1,10 @@
 # Privacy Policy
 
-**Last updated:** January 9, 2026
+**Last updated:** January 12, 2026
 
 ## Overview
 
-Focus Mode is committed to protecting your privacy. This extension does not collect, store, or transmit any personal data to external servers.
+Pip Focus is committed to protecting your privacy. This extension does not collect, store, or transmit any personal data to external servers.
 
 ## Data Collection
 
@@ -20,11 +20,11 @@ Focus Mode is committed to protecting your privacy. This extension does not coll
 
 All your settings (blocked websites, timer preferences) are stored **locally in your browser** using Chrome's built-in storage API (`chrome.storage.sync` and `chrome.storage.local`).
 
-If you're signed into Chrome with a Google account, your settings may sync across your devices. This syncing is handled entirely by Chrome/Google — Focus Mode does not operate any servers.
+If you're signed into Chrome with a Google account, your settings may sync across your devices. This syncing is handled entirely by Chrome/Google — Pip Focus does not operate any servers.
 
 ## Permissions Explained
 
-Focus Mode requests the following permissions:
+Pip Focus requests the following permissions:
 
 | Permission | Why We Need It |
 |------------|----------------|
@@ -38,7 +38,7 @@ Focus Mode requests the following permissions:
 
 ## Third-Party Services
 
-Focus Mode does **not** use any third-party services, analytics platforms, or external APIs.
+Pip Focus does **not** use any third-party services, analytics platforms, or external APIs.
 
 ## Open Source
 
@@ -60,5 +60,4 @@ https://github.com/arpitjp/focus-mode-chrome-extension/issues
 
 ---
 
-**TL;DR:** Focus Mode stores your settings locally in your browser. We don't collect any data. Period.
-
+**TL;DR:** Pip Focus stores your settings locally in your browser. We don't collect any data. Period.

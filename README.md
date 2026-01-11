@@ -1,4 +1,4 @@
-# Focus Mode
+# Pip Focus
 
 One simple thing, done well.
 
@@ -39,7 +39,7 @@ A Chrome extension that blocks distracting websites to help you stay focused.
 
 ## Install
 
-**Chrome Web Store**: [Install Focus Mode](https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn)
+**Chrome Web Store**: [Install Pip Focus](https://chromewebstore.google.com/detail/focus-mode/ijgbeipckbajgnkjgdhoponeenjdnimn)
 
 **Manual**: Clone repo → In chrome, go to `chrome://extensions` → Enable Developer Mode → Load unpacked → Select the cloned repo
 

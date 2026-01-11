@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Focus Mode - Block Distracting Websites</title>
+<title>Pip - Focus Timer & Website Blocker</title>
 <meta name="description"
     content="A Chrome extension that blocks distracting websites to help you stay focused. One-click blocking, stats tracking, 100% private.">
   <meta name="color-scheme" content="only dark">
-<link rel="icon" type="image/png" href="assets/icon48.png">
+<link rel="icon" type="image/png" href="assets/icon128.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -214,16 +214,112 @@
       animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
     }
 
+    .logo-icon-wrapper {
+      position: relative;
+      width: 72px;
+      height: 72px;
+    }
+
     .logo-icon {
       width: 72px;
       height: 72px;
-      border-radius: 18px;
-      box-shadow: 0 12px 40px rgba(91, 127, 255, 0.4);
-      transition: transform 0.4s ease;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 8px 24px rgba(167, 139, 250, 0.5));
+      animation: pipFloat 4s ease-in-out infinite;
+      cursor: pointer;
+    }
+
+    @keyframes pipFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Glow ring behind Pip */
+    .pip-glow {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.4) 0%, transparent 70%);
+      animation: pipGlowPulse 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pipGlowPulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 0.3; }
+    }
+
+    /* Orbit rings - clean and simple */
+    .pip-orbit {
+      position: absolute;
+      inset: -15px;
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      border-radius: 50%;
+      animation: pipOrbit 12s linear infinite;
+      pointer-events: none;
+    }
+
+    .pip-orbit::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, #a78bfa, #5b7fff);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(167, 139, 250, 0.8);
+    }
+
+    .pip-orbit-2 {
+      inset: -25px;
+      animation-duration: 18s;
+      animation-direction: reverse;
+      border-color: rgba(91, 127, 255, 0.15);
+    }
+
+    .pip-orbit-2::before {
+      width: 4px;
+      height: 4px;
+      background: linear-gradient(135deg, #5b7fff, #a78bfa);
+    }
+
+    @keyframes pipOrbit {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .logo-icon {
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes pipBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(0.85) rotate(-10deg); }
+      50% { transform: scale(1.15) rotate(5deg); }
+      70% { transform: scale(0.95) rotate(-3deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes pipSpin {
+      0% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.2) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
     }
 
     .logo:hover .logo-icon {
-      transform: scale(1.05) rotate(-3deg);
+      animation-play-state: paused;
+    }
+
+    .logo:hover .pip-glow {
+      animation: none;
+      transform: scale(1.3);
+      opacity: 0.5;
+    }
+
+    .logo:hover .pip-orbit,
+    .logo:hover .pip-orbit-2 {
+      border-color: rgba(167, 139, 250, 0.4);
     }
 
     .logo-text {
@@ -246,6 +342,16 @@
     @keyframes gradientShift {
       0%, 100% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      margin-top: -8px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s backwards;
     }
 
     .hero-tagline {
@@ -692,7 +798,6 @@
     .footer-logo {
       width: 32px;
       height: 32px;
-      border-radius: 8px;
     }
 
     .footer-brand {
@@ -770,9 +875,30 @@
         letter-spacing: -1px;
       }
 
+      .logo-icon-wrapper {
+        width: 64px;
+        height: 64px;
+      }
+
       .logo-icon {
-        width: 56px;
-        height: 56px;
+        width: 64px;
+        height: 64px;
+      }
+
+      /* Simplify animations on mobile */
+      .pip-orbit,
+      .pip-orbit-2 {
+        display: none;
+      }
+
+      .pip-glow {
+        inset: -10px;
+      }
+
+      .hero-subtitle {
+        font-size: 13px;
+        margin-top: -4px;
+        margin-bottom: 16px;
       }
 
       .hero-tagline {
@@ -939,6 +1065,10 @@
         font-size: 28px;
       }
 
+      .hero-subtitle {
+        font-size: 12px;
+      }
+
       .hero-tagline {
         font-size: 15px;
       }
@@ -1086,8 +1216,16 @@
     <div class="container">
       <div class="hero-content">
         <div class="logo">
-          <img src="assets/icon128.png" alt="Focus Mode" class="logo-icon">
-          <span class="logo-text">Focus Mode</span>
+          <div class="logo-icon-wrapper" id="pipWrapper">
+            <div class="pip-glow"></div>
+            <div class="pip-orbit"></div>
+            <div class="pip-orbit pip-orbit-2"></div>
+            <img src="assets/icon128.png" alt="Pip" class="logo-icon" id="pipIcon">
+          </div>
+          <div>
+            <span class="logo-text">Pip Focus</span>
+            <p class="hero-subtitle">Focus Timer & Website Blocker</p>
+          </div>
         </div>
         <p class="hero-tagline">
           When willpower isn't enough.
@@ -1099,10 +1237,10 @@
     
     <div class="screenshot-wrapper">
         <div class="screenshot screenshot-popup" data-parallax="0.15">
-        <img src="assets/popup.png" alt="Focus Mode Popup">
+        <img src="assets/popup.png" alt="Pip Focus Popup">
         </div>
         <div class="screenshot screenshot-stats" data-parallax="0.08">
-        <img src="assets/stats.png" alt="Focus Stats">
+        <img src="assets/stats.png" alt="Pip Focus Stats">
         </div>
       </div>
     </div>
@@ -1212,8 +1350,8 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-left">
-          <img src="assets/icon48.png" alt="Focus Mode" class="footer-logo">
-          <span class="footer-brand">Focus Mode</span>
+          <img src="assets/icon128.png" alt="Pip" class="footer-logo">
+          <span class="footer-brand">Pip Focus</span>
         </div>
         <div class="footer-links">
           <a href="https://github.com/arpitjp/focus-mode-chrome-extension" class="footer-link" target="_blank">GitHub</a>
@@ -1236,9 +1374,51 @@
     const scrollProgress = document.getElementById('scrollProgress');
         const cursorGlow = document.getElementById('cursorGlow');
         const featureCards = document.querySelectorAll('.feature-card');
+        const pipIcon = document.getElementById('pipIcon');
+        const pipWrapper = document.getElementById('pipWrapper');
 
         // Check if mobile
         const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+        // Pip parallax - follows cursor subtly
+        if (!isMobile && pipIcon && pipWrapper) {
+            let pipTargetX = 0, pipTargetY = 0;
+            let pipCurrentX = 0, pipCurrentY = 0;
+            
+            document.addEventListener('mousemove', (e) => {
+                const rect = pipWrapper.getBoundingClientRect();
+                const pipCenterX = rect.left + rect.width / 2;
+                const pipCenterY = rect.top + rect.height / 2;
+                
+                // Calculate distance from Pip (max 15px movement)
+                const deltaX = (e.clientX - pipCenterX) / 40;
+                const deltaY = (e.clientY - pipCenterY) / 40;
+                
+                pipTargetX = Math.max(-15, Math.min(15, deltaX));
+                pipTargetY = Math.max(-15, Math.min(15, deltaY));
+            });
+            
+            // Smooth animation loop for Pip
+            const animatePip = () => {
+                pipCurrentX += (pipTargetX - pipCurrentX) * 0.08;
+                pipCurrentY += (pipTargetY - pipCurrentY) * 0.08;
+                
+                pipIcon.style.transform = `translate(${pipCurrentX}px, ${pipCurrentY}px)`;
+                requestAnimationFrame(animatePip);
+            };
+            animatePip();
+            
+            // Simple click to rotate
+            pipIcon.addEventListener('click', () => {
+                pipIcon.style.animation = 'none';
+                pipIcon.offsetHeight; // Trigger reflow
+                pipIcon.style.animation = 'pipSpin 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                
+                setTimeout(() => {
+                    pipIcon.style.animation = 'pipFloat 4s ease-in-out infinite';
+                }, 800);
+            });
+        }
 
         // Cursor glow tracking (desktop only)
         if (!isMobile && cursorGlow) {
