@@ -23,7 +23,8 @@ const FILES_TO_COPY = [
   'stats.html',
   'icon16.png',
   'icon48.png',
-  'icon128.png'
+  'icon128.png',
+  'assets/ding.mp3'
 ];
 
 async function build() {
@@ -95,11 +96,19 @@ async function build() {
       console.log(`   ⚠️  Skipping ${file} (not found)`);
       continue;
     }
+    const destPath = path.join(DIST_DIR, file);
+    const destDir = path.dirname(destPath);
+    
+    // Create subdirectory if needed
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+    
     if (file === 'manifest.json' && isDeploy) {
       // Write the updated manifest to dist
-      fs.writeFileSync(path.join(DIST_DIR, file), JSON.stringify(manifest, null, 2) + '\n');
+      fs.writeFileSync(destPath, JSON.stringify(manifest, null, 2) + '\n');
     } else {
-      fs.copyFileSync(file, path.join(DIST_DIR, file));
+      fs.copyFileSync(file, destPath);
     }
     console.log(`   ✓ ${file}`);
   }

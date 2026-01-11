@@ -275,9 +275,6 @@ async function handleIdleStateChange(state) {
 // Mutex to prevent concurrent rule updates
 let isUpdating = false;
 
-// Keep offscreen document ready
-let offscreenReady = false;
-
 // Timer references - track all to prevent memory leaks
 let timerTimeout = null;
 let chimeTimeout = null;
@@ -308,18 +305,36 @@ async function clearAllMutedTabs() {
   await chrome.storage.local.set({ mutedByExtension: [] }).catch(() => {});
 }
 
+// Check if offscreen document exists
+async function hasOffscreenDocument() {
+  try {
+    const contexts = await chrome.runtime.getContexts({
+      contextTypes: ['OFFSCREEN_DOCUMENT'],
+      documentUrls: [chrome.runtime.getURL('offscreen.html')]
+    });
+    return contexts.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+// Ensure offscreen document exists for audio playback
+// This is required for playing sounds even when Chrome isn't focused
 async function ensureOffscreen() {
-  if (offscreenReady) return;
+  // Always verify the document actually exists (don't trust cached state)
+  const exists = await hasOffscreenDocument();
+  if (exists) return;
+  
   try {
     await chrome.offscreen.createDocument({
       url: 'offscreen.html',
       reasons: ['AUDIO_PLAYBACK'],
-      justification: 'Play chime when focus session ends'
+      justification: 'Play chime when focus session ends - even when Chrome is not in focus'
     });
-    offscreenReady = true;
   } catch (e) {
-    if (e.message?.includes('already exists')) {
-      offscreenReady = true;
+    // Document might already exist (race condition)
+    if (!e.message?.includes('already exists')) {
+      // Real error - log but don't crash
     }
   }
 }
@@ -491,7 +506,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     await updateHeartbeat();
   }
   if (alarm.name === 'focusTimerEnd') {
-    // Timer ended - finalize session, disable blocking and play chime
+    // Timer ended - finalize session and disable blocking
+    // Note: chime is played via setTimeout in setTimerAlarm (2 seconds early)
     await finalizeSession();
     try {
       await chrome.storage.sync.set({ 
@@ -500,7 +516,6 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         blockingDuration: null
       });
       await updateBlockingRules(true);
-      playChime();
     } catch (e) {
       // Fallback to local storage
       await chrome.storage.local.set({ 
@@ -653,7 +668,7 @@ async function checkBlockingTimer() {
         blockingDuration: null
       }).catch(() => {});
       await updateBlockingRules(true);
-      playChime();
+      // Note: chime is played via setTimeout in setTimerAlarm (not here to avoid duplicates)
     }
   } catch (e) {
     // Timer check failed - will retry on next alarm

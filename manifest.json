@@ -39,7 +39,8 @@
         "blocked.html",
         "blocked.js",
         "icon128.png",
-        "content-blocker.js"
+        "content-blocker.js",
+        "assets/ding.mp3"
       ],
       "matches": [
         "<all_urls>"
