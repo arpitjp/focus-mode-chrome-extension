@@ -1294,16 +1294,20 @@
         scrollProgress.style.width = `${progress}%`;
       }
       
-      // Subtle parallax depth - screenshots lag slightly behind scroll
+      // Strong parallax - screenshots move at different speeds for depth
       if (!isMobile) {
         if (screenshotPopup) {
-            const y1 = scrolled * -0.08;
-            screenshotPopup.style.transform = `translateY(${y1}px) rotateY(-8deg) rotateX(2deg)`;
+            // Popup moves slower (lags behind) - appears closer
+            const y1 = scrolled * -0.35;
+            const rotate = -8 + scrolled * 0.01;
+            screenshotPopup.style.transform = `translateY(${y1}px) rotateY(${rotate}deg) rotateX(2deg) scale(${1 - scrolled * 0.0002})`;
         }
         
         if (screenshotStats) {
-            const y2 = scrolled * -0.05;
-            screenshotStats.style.transform = `translateY(${y2}px) rotateY(5deg) rotateX(-2deg)`;
+            // Stats moves faster - appears further back
+            const y2 = scrolled * -0.2;
+            const rotate = 5 - scrolled * 0.008;
+            screenshotStats.style.transform = `translateY(${y2}px) rotateY(${rotate}deg) rotateX(-2deg) scale(${1 - scrolled * 0.0001})`;
         }
       }
       
