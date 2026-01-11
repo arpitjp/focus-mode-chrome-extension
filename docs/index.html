@@ -203,7 +203,7 @@
       justify-content: center;
       height: 60vh;
       padding-top: 40px;
-      will-change: transform;
+      will-change: transform, opacity, filter;
     }
 
     .logo {
@@ -1311,12 +1311,14 @@
         }
       }
       
-      // Hero content fades and moves with scroll
+      // Hero content fades, blurs and moves with scroll
       if (heroContent) {
         const y = scrolled * 0.15;
-        const opacity = Math.max(1 - scrolled * 0.001, 0.3);
+        const opacity = Math.max(1 - scrolled * 0.003, 0);
+        const blur = Math.min(scrolled * 0.02, 8);
         heroContent.style.transform = `translateY(${y}px)`;
         heroContent.style.opacity = opacity;
+        heroContent.style.filter = `blur(${blur}px)`;
       }
       
       // Background glow parallax
