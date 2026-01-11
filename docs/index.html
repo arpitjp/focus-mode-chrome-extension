@@ -463,6 +463,13 @@
       animation: floatScreenshot 6s ease-in-out infinite;
     }
 
+    .screenshot-blocked {
+      max-width: 440px;
+      transform: translateY(var(--parallax-y3, 0)) rotateY(3deg) rotateX(-1deg);
+      animation: floatScreenshot3 6s ease-in-out infinite;
+      animation-delay: -1.5s;
+    }
+
     .screenshot-stats {
       max-width: 560px;
       transform: translateY(var(--parallax-y2, 0)) rotateY(5deg) rotateX(-2deg);
@@ -478,6 +485,11 @@
     @keyframes floatScreenshot2 {
       0%, 100% { transform: translateY(var(--parallax-y2, 0)) rotateY(5deg) rotateX(-2deg); }
       50% { transform: translateY(calc(var(--parallax-y2, 0px) - 15px)) rotateY(7deg) rotateX(0deg); }
+    }
+
+    @keyframes floatScreenshot3 {
+      0%, 100% { transform: translateY(var(--parallax-y3, 0)) rotateY(3deg) rotateX(-1deg); }
+      50% { transform: translateY(calc(var(--parallax-y3, 0px) - 18px)) rotateY(5deg) rotateX(1deg); }
     }
 
 
@@ -748,6 +760,10 @@
       .screenshot-popup {
         max-width: 260px;
       }
+
+      .screenshot-blocked {
+        max-width: 360px;
+      }
       
       .screenshot-stats {
         max-width: 440px;
@@ -815,6 +831,7 @@
       }
 
       .screenshot-popup,
+      .screenshot-blocked,
       .screenshot-stats {
         max-width: 90%;
         width: 100%;
@@ -924,12 +941,14 @@
       }
 
       .screenshot-popup,
+      .screenshot-blocked,
       .screenshot-stats {
         animation: none;
       }
 
       /* Disable parallax on mobile - stacked images don't work well with parallax */
       .screenshot-popup,
+      .screenshot-blocked,
       .screenshot-stats {
         transform: none !important;
       }
@@ -1111,6 +1130,9 @@
         <div class="screenshot screenshot-popup" data-parallax="0.15">
         <img src="assets/popup.png" alt="Focus Mode Popup">
         </div>
+        <div class="screenshot screenshot-blocked" data-parallax="0.12">
+        <img src="assets/blocked.png" alt="Blocked Page">
+        </div>
         <div class="screenshot screenshot-stats" data-parallax="0.08">
         <img src="assets/stats.png" alt="Focus Stats">
         </div>
@@ -1241,6 +1263,7 @@
   <script>
     // Elements
     const screenshotPopup = document.querySelector('.screenshot-popup');
+    const screenshotBlocked = document.querySelector('.screenshot-blocked');
     const screenshotStats = document.querySelector('.screenshot-stats');
     const heroContent = document.querySelector('.hero-content');
     const bgGlow = document.querySelector('.bg-glow');
@@ -1310,6 +1333,11 @@
         if (screenshotPopup) {
             const y1 = scrolled * 0.4;
             screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
+        }
+
+        if (screenshotBlocked) {
+            const y3 = scrolled * 0.3;
+            screenshotBlocked.style.setProperty('--parallax-y3', `${y3}px`);
         }
         
         if (screenshotStats) {
