@@ -11,6 +11,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 let lastPlayTime = 0;
 const DEBOUNCE_MS = 3000; // Don't play again within 3 seconds
 
+// Reuse single audio element to prevent memory leaks from orphaned Audio objects
+let audioElement = null;
+
 async function playChime() {
   // Prevent double-play
   const now = Date.now();
@@ -20,8 +23,13 @@ async function playChime() {
   lastPlayTime = now;
   
   try {
-    const audio = new Audio(chrome.runtime.getURL('assets/ding.mp3'));
-    await audio.play();
+    // Reuse existing audio element or create once
+    if (!audioElement) {
+      audioElement = new Audio(chrome.runtime.getURL('assets/ding.mp3'));
+    }
+    // Reset to start in case still playing
+    audioElement.currentTime = 0;
+    await audioElement.play();
   } catch (e) {
     // Audio playback failed - non-critical, ignore
   }

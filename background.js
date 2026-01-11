@@ -8,6 +8,39 @@ let initialized = false;
 const MAX_SESSION_MINUTES = 1440; // 24 hours - sanity cap to catch bugs, not limit users
 const SLEEP_GAP_MINUTES = 30; // If last heartbeat was > 30 min ago, assume sleep/shutdown
 
+// Cache blocking state to avoid redundant storage reads on frequent tab updates
+let cachedBlockingState = null;
+let cacheTimestamp = 0;
+const CACHE_TTL_MS = 5000; // Cache valid for 5 seconds
+
+function invalidateBlockingCache() {
+  cachedBlockingState = null;
+  cacheTimestamp = 0;
+}
+
+async function getCachedBlockingState() {
+  const now = Date.now();
+  if (cachedBlockingState && (now - cacheTimestamp) < CACHE_TTL_MS) {
+    return cachedBlockingState;
+  }
+  
+  try {
+    const syncResult = await chrome.storage.sync.get(['blockingEnabled', 'blockedSites']);
+    const localResult = await chrome.storage.local.get(['blockingEnabled', 'blockedSites']);
+    
+    cachedBlockingState = {
+      enabled: syncResult.blockingEnabled ?? localResult.blockingEnabled ?? false,
+      blockedSites: syncResult.blockedSites ?? localResult.blockedSites ?? []
+    };
+    cacheTimestamp = now;
+  } catch {
+    cachedBlockingState = { enabled: false, blockedSites: [] };
+    cacheTimestamp = now;
+  }
+  
+  return cachedBlockingState;
+}
+
 // Get today's date key for stats (LOCAL timezone, not UTC)
 function getTodayKey() {
   const now = new Date();
@@ -75,7 +108,17 @@ async function addToDailyStats(minutes) {
     stats.daily[today] = existingToday + cappedMinutes;
     stats.totalMinutes = sanitizeMinutes(stats.totalMinutes) + cappedMinutes;
     
-    // Prune old daily data (keep last 90 days to stay within storage limits)
+    // Track hourly patterns by date (for last 90 days filtering)
+    if (!stats.hourlyByDate || typeof stats.hourlyByDate !== 'object') {
+      stats.hourlyByDate = {};
+    }
+    const hour = new Date().getHours();
+    if (!stats.hourlyByDate[today]) {
+      stats.hourlyByDate[today] = {};
+    }
+    stats.hourlyByDate[today][hour] = sanitizeMinutes(stats.hourlyByDate[today][hour]) + cappedMinutes;
+    
+    // Prune old data (keep last 90 days to stay within storage limits)
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 90);
     const cutoffYear = cutoff.getFullYear();
@@ -85,6 +128,9 @@ async function addToDailyStats(minutes) {
     
     for (const key of Object.keys(stats.daily)) {
       if (key < cutoffKeyStr) delete stats.daily[key];
+    }
+    for (const key of Object.keys(stats.hourlyByDate)) {
+      if (key < cutoffKeyStr) delete stats.hourlyByDate[key];
     }
     
     await chrome.storage.sync.set({ stats });
@@ -295,6 +341,16 @@ async function addMutedTab(tabId) {
   await chrome.storage.local.set({ mutedByExtension: [...muted] }).catch(() => {});
 }
 
+// Batch add multiple tabs to avoid multiple storage writes
+async function addMutedTabs(tabIds) {
+  if (!tabIds || tabIds.length === 0) return;
+  const muted = await getMutedTabs();
+  for (const tabId of tabIds) {
+    muted.add(tabId);
+  }
+  await chrome.storage.local.set({ mutedByExtension: [...muted] }).catch(() => {});
+}
+
 async function removeMutedTab(tabId) {
   const muted = await getMutedTabs();
   muted.delete(tabId);
@@ -491,6 +547,15 @@ async function initialize() {
   await checkBlockingTimer();
   await reblockTabsAfterReload();
   
+  // Restore timer if blocking is active with an end time
+  // This ensures chime plays even after service worker restart
+  try {
+    const timerResult = await chrome.storage.sync.get(['blockingEnabled', 'blockingEndTime']);
+    if (timerResult.blockingEnabled && timerResult.blockingEndTime && timerResult.blockingEndTime > Date.now()) {
+      setTimerAlarm(timerResult.blockingEndTime);
+    }
+  } catch (e) {}
+  
   // Set up alarms for periodic checks
   chrome.alarms.create('checkBlockingTimer', { periodInMinutes: 1 });
   chrome.alarms.create('heartbeat', { periodInMinutes: 1 }); // Heartbeat every minute
@@ -507,7 +572,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
   if (alarm.name === 'focusTimerEnd') {
     // Timer ended - finalize session and disable blocking
-    // Note: chime is played via setTimeout in setTimerAlarm (2 seconds early)
+    // Play chime here as fallback (in case setTimeout didn't fire due to service worker sleep)
+    // The 3s debounce in offscreen.js prevents double-play if both setTimeout and alarm fire
+    playChime();
     await finalizeSession();
     try {
       await chrome.storage.sync.set({ 
@@ -796,6 +863,9 @@ async function syncOpenTabs(blockingEnabled, blockedSites) {
     }
     
     // Blocking is enabled - mute and block matching tabs
+    // Collect all tabs to mute, then batch write to storage
+    const tabsToMute = [];
+    
     for (const tab of tabs) {
       if (!tab.url || !tab.id) continue;
       
@@ -807,9 +877,9 @@ async function syncOpenTabs(blockingEnabled, blockedSites) {
       const isBlocked = blockedSites.some(site => matchesSite(urlLower, site));
       
       if (isBlocked) {
-        // Mute the tab immediately to stop audio (track that we muted it)
+        // Mute the tab immediately to stop audio
         chrome.tabs.update(tab.id, { muted: true }).catch(() => {});
-        await addMutedTab(tab.id);
+        tabsToMute.push(tab.id);
         
         // Try to inject blocker script
         const injected = await injectBlockerScript(tab.id);
@@ -820,6 +890,11 @@ async function syncOpenTabs(blockingEnabled, blockedSites) {
         }
       }
     }
+    
+    // Batch write muted tabs to storage (single write instead of per-tab)
+    if (tabsToMute.length > 0) {
+      await addMutedTabs(tabsToMute);
+    }
   } catch (e) {
     // Tab sync failed - non-critical
   }
@@ -829,6 +904,7 @@ async function syncOpenTabs(blockingEnabled, blockedSites) {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'sync' || areaName === 'local') {
     if (changes.blockingEnabled || changes.blockedSites) {
+      invalidateBlockingCache(); // Clear cache on state changes
       updateBlockingRules(true);
     }
   }
@@ -847,11 +923,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!url || url.startsWith('chrome://') || url.startsWith('chrome-extension://')) return;
   
   try {
-    const syncResult = await chrome.storage.sync.get(['blockingEnabled', 'blockedSites']);
-    const localResult = await chrome.storage.local.get(['blockingEnabled', 'blockedSites']);
-    
-    const enabled = syncResult.blockingEnabled ?? localResult.blockingEnabled ?? false;
-    const blockedSites = syncResult.blockedSites ?? localResult.blockedSites ?? [];
+    // Use cached state to avoid redundant storage reads on every tab update
+    const { enabled, blockedSites } = await getCachedBlockingState();
     
     if (!enabled || blockedSites.length === 0) return;
     

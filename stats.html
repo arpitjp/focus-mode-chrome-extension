@@ -12,10 +12,10 @@
     }
 
     :root {
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-tertiary: #1a1a24;
-      --bg-card: #14141c;
+      --bg-primary: #050508;
+      --bg-secondary: #0c0c12;
+      --bg-tertiary: #14141c;
+      --bg-card: rgba(20, 20, 28, 0.7);
       --text-primary: #f0f0f5;
       --text-secondary: #8888a0;
       --text-muted: #55556a;
@@ -23,8 +23,8 @@
       --accent-dim: rgba(91, 127, 255, 0.3);
       --accent-glow: rgba(91, 127, 255, 0.15);
       --current: #f0f0f5;
-      --avg-color: rgba(255, 255, 255, 0.5);
-      --border-subtle: rgba(255, 255, 255, 0.04);
+      --avg-color: rgba(167, 139, 250, 0.8);
+      --border-subtle: rgba(255, 255, 255, 0.06);
     }
 
     body {
@@ -34,6 +34,42 @@
       min-height: 100vh;
       color-scheme: dark;
       isolation: isolate;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Floating glow orbs - matching blocked page exactly */
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(150px);
+      opacity: 0.35;
+      pointer-events: none;
+      animation: glowFloat 25s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    body::before {
+      background: radial-gradient(circle, #5b7fff 0%, transparent 70%);
+      top: -200px;
+      right: -150px;
+    }
+
+    body::after {
+      background: radial-gradient(circle, #a78bfa 0%, transparent 70%);
+      bottom: -200px;
+      left: -150px;
+      animation-delay: -12s;
+    }
+
+    @keyframes glowFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
     }
 
     img {
@@ -46,14 +82,41 @@
     .container {
       max-width: 600px;
       margin: 0 auto;
-      padding: 40px 24px;
+      padding: 32px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Content sections */
+    .content-section {
+      display: contents; /* Don't affect layout */
+    }
+
+    /* Section titles */
+    .section-title {
+      font-size: 11px;
+      transition: color 0.2s ease, font-size 0.2s ease;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-left: 2px;
+    }
+
+    /* Brighten and enlarge section title when any card in section is hovered */
+    .content-section:has(.summary-card:hover) .section-title,
+    .content-section:has(.chart-container:hover) .section-title,
+    .content-section:has(.pattern-card:hover) .section-title,
+    .content-section:has(.stat-card:hover) .section-title {
+      color: var(--text-secondary);
+      font-size: 12px;
     }
 
     .header {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .header-icon {
@@ -82,19 +145,53 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-bottom: 32px;
+      margin-bottom: 20px;
     }
 
     .summary-card {
       background: var(--bg-card);
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px 12px;
       text-align: center;
       border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(91, 127, 255, 0.25) 0%, rgba(167, 139, 250, 0.2) 50%, rgba(91, 127, 255, 0.25) 100%);
+      background-size: 200% 200%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: inherit;
+    }
+
+    .summary-card:hover::before {
+      opacity: 1;
+      animation: gradientShift 2s ease infinite;
+    }
+
+    .summary-card:hover {
+      border-color: rgba(91, 127, 255, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(91, 127, 255, 0.15);
+    }
+
+    .summary-card:hover .summary-label {
+      color: var(--text-secondary);
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
     }
 
     .summary-value {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: -0.5px;
       background: linear-gradient(90deg, #7b9fff, #b8a4e8, #7b9fff);
@@ -103,14 +200,49 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      position: relative;
+      z-index: 1;
     }
 
     .summary-label {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-top: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chart-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(91, 127, 255, 0.12) 0%, rgba(167, 139, 250, 0.08) 50%, rgba(91, 127, 255, 0.12) 100%);
+      background-size: 200% 200%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: inherit;
+    }
+
+    .chart-container:hover::before {
+      opacity: 1;
+      animation: gradientShift 3s ease infinite;
+    }
+
+    .chart-container:hover {
+      border-color: rgba(91, 127, 255, 0.25);
     }
 
     .view-tabs {
@@ -119,16 +251,18 @@
       background: var(--bg-secondary);
       padding: 4px;
       border-radius: 8px;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
     }
 
     .view-tab {
       flex: 1;
-      padding: 10px 16px;
+      padding: 8px 14px;
       background: transparent;
       border: none;
       color: var(--text-secondary);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       cursor: pointer;
       border-radius: 6px;
@@ -146,19 +280,13 @@
       color: white;
     }
 
-    .chart-container {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 24px;
-      border: 1px solid var(--border-subtle);
-      margin-bottom: 24px;
-    }
-
     .chart-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
     }
 
     .chart-nav {
@@ -168,8 +296,8 @@
     }
 
     .nav-btn {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       padding: 0;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -194,35 +322,35 @@
     }
 
     .nav-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
     }
 
     .chart-period {
       font-size: 13px;
       font-weight: 500;
       color: var(--text-primary);
-      min-width: 140px;
+      min-width: 130px;
       text-align: center;
     }
 
     .chart-avg {
       font-size: 11px;
-      color: var(--avg-color);
+      color: rgba(255, 255, 255, 0.7);
       font-weight: 500;
     }
 
     .bar-chart-wrapper {
       position: relative;
+      z-index: 1;
     }
 
     .avg-line {
       position: absolute;
       left: 0;
       right: 0;
-      height: 1px;
-      background: var(--avg-color);
-      opacity: 0.6;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 15%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.3) 85%, transparent 100%);
       pointer-events: none;
       z-index: 1;
     }
@@ -230,21 +358,22 @@
     .avg-line::after {
       content: '';
       position: absolute;
-      right: -4px;
+      right: 0;
       top: -3px;
-      width: 7px;
-      height: 7px;
-      background: var(--avg-color);
+      width: 8px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 50%;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(91, 127, 255, 0.3);
     }
 
     .bar-chart {
       display: flex;
       align-items: flex-end;
       justify-content: space-around;
-      height: 160px;
+      height: 140px;
       gap: 8px;
-      padding-top: 8px;
+      padding-top: 6px;
     }
 
     .bar-wrapper {
@@ -252,7 +381,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       height: 100%;
     }
 
@@ -274,7 +403,7 @@
     .bar {
       width: 100%;
       max-width: 32px;
-      background: linear-gradient(180deg, rgba(123, 143, 201, 0.8) 0%, rgba(123, 143, 201, 0.35) 100%);
+      background: linear-gradient(180deg, rgba(91, 127, 255, 0.7) 0%, rgba(91, 127, 255, 0.3) 100%);
       border-radius: 4px 4px 0 0;
       min-height: 2px;
       transition: height 0.3s ease;
@@ -307,43 +436,277 @@
     .stat-card {
       background: var(--bg-card);
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px;
       border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(91, 127, 255, 0.2) 0%, rgba(167, 139, 250, 0.15) 50%, rgba(91, 127, 255, 0.2) 100%);
+      background-size: 200% 200%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: inherit;
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+      animation: gradientShift 2s ease infinite;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(91, 127, 255, 0.35);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(91, 127, 255, 0.1);
+    }
+
+    .stat-card:hover .stat-label {
+      color: var(--text-secondary);
     }
 
     .stat-label {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
     }
 
     .stat-value {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 600;
       color: var(--text-primary);
+      position: relative;
+      z-index: 1;
     }
 
     .stat-value span {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-secondary);
       font-weight: 400;
     }
 
     .stat-value .best-badge {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       font-weight: 500;
-      margin-left: 6px;
+      margin-left: 5px;
     }
 
     .stat-value .longest-hint {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       font-weight: 400;
-      margin-left: 6px;
+      margin-left: 5px;
     }
+
+    /* Focus Patterns Section */
+    .patterns-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .pattern-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pattern-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(91, 127, 255, 0.2) 0%, rgba(167, 139, 250, 0.15) 50%, rgba(91, 127, 255, 0.2) 100%);
+      background-size: 200% 200%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: inherit;
+    }
+
+    .pattern-card:hover::before {
+      opacity: 1;
+      animation: gradientShift 2s ease infinite;
+    }
+
+    .pattern-card:hover {
+      border-color: rgba(91, 127, 255, 0.35);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(91, 127, 255, 0.1);
+    }
+
+    .pattern-card:hover .pattern-title {
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 520px) {
+      .patterns-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pattern-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pattern-title {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .pattern-peak {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Hour Heat Strip - 24 hours */
+    .hour-strip {
+      display: flex;
+      gap: 2px;
+      height: 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hour-cell {
+      flex: 1;
+      border-radius: 3px;
+      background: var(--bg-tertiary);
+      position: relative;
+      min-width: 0;
+      transition: transform 0.15s ease;
+    }
+
+    .hour-cell:hover {
+      transform: scaleY(1.15);
+    }
+
+    .hour-cell::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      border: 1px solid var(--border-subtle);
+      z-index: 10;
+    }
+
+    .hour-cell:hover::after {
+      opacity: 1;
+    }
+
+    .hour-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      padding: 0 2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hour-label {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    /* Day Heat Strip - 7 days */
+    .day-strip {
+      display: flex;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .day-cell {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .day-bar {
+      width: 100%;
+      height: 28px;
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+      position: relative;
+      transition: transform 0.15s ease;
+    }
+
+    .day-bar:hover {
+      transform: scaleY(1.1);
+    }
+
+    .day-bar::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      border: 1px solid var(--border-subtle);
+      z-index: 10;
+    }
+
+    .day-bar:hover::after {
+      opacity: 1;
+    }
+
+    .day-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .day-label.today {
+      color: var(--accent);
+    }
+
+    /* Heat colors - gradient from dim to bright */
+    .heat-0 { background: var(--bg-tertiary); }
+    .heat-1 { background: rgba(91, 127, 255, 0.15); }
+    .heat-2 { background: rgba(91, 127, 255, 0.3); }
+    .heat-3 { background: rgba(91, 127, 255, 0.45); }
+    .heat-4 { background: rgba(91, 127, 255, 0.6); }
+    .heat-5 { background: linear-gradient(180deg, rgba(91, 127, 255, 0.8) 0%, rgba(167, 139, 250, 0.7) 100%); }
 
     .empty-state {
       text-align: center;
@@ -411,7 +774,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .support-links {
@@ -499,28 +862,32 @@
       <h1>Focus Stats</h1>
     </header>
 
-    <div class="summary-cards">
-      <div class="summary-card">
-        <div class="summary-value" id="todayValue">0m</div>
-        <div class="summary-label">Today</div>
+    <section class="content-section">
+      <div class="section-title">Overview</div>
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="summary-value" id="todayValue">0m</div>
+          <div class="summary-label">Today</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value" id="weekValue">0m</div>
+          <div class="summary-label">This Week</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value" id="totalValue">0m</div>
+          <div class="summary-label">All Time</div>
+        </div>
       </div>
-      <div class="summary-card">
-        <div class="summary-value" id="weekValue">0m</div>
-        <div class="summary-label">This Week</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-value" id="totalValue">0m</div>
-        <div class="summary-label">All Time</div>
-      </div>
-    </div>
+    </section>
 
-    <div class="view-tabs">
-      <button class="view-tab active" data-view="week">Week</button>
-      <button class="view-tab" data-view="month">Month</button>
-      <button class="view-tab" data-view="year">Year</button>
-    </div>
-
-    <div class="chart-container">
+    <section class="content-section">
+      <div class="section-title">Activity</div>
+      <div class="chart-container">
+      <div class="view-tabs">
+        <button class="view-tab active" data-view="week">Week</button>
+        <button class="view-tab" data-view="month">Month</button>
+        <button class="view-tab" data-view="year">Year</button>
+      </div>
       <div class="chart-header">
         <div class="chart-nav">
           <button class="nav-btn" id="prevBtn" title="Previous">
@@ -544,8 +911,44 @@
         </div>
       </div>
     </div>
+    </section>
 
-    <div class="stats-grid">
+    <!-- Focus Patterns -->
+    <section class="content-section">
+      <div class="section-title">Patterns</div>
+      <div class="patterns-section">
+      <div class="pattern-card">
+        <div class="pattern-header">
+          <span class="pattern-title">Peak Hours</span>
+          <span class="pattern-peak" id="peakHours">—</span>
+        </div>
+        <div class="hour-strip" id="hourStrip">
+          <!-- 24 hour cells rendered by JS -->
+        </div>
+        <div class="hour-labels">
+          <span class="hour-label">12am</span>
+          <span class="hour-label">6am</span>
+          <span class="hour-label">12pm</span>
+          <span class="hour-label">6pm</span>
+          <span class="hour-label">12am</span>
+        </div>
+      </div>
+
+      <div class="pattern-card">
+        <div class="pattern-header">
+          <span class="pattern-title">Weekly Rhythm</span>
+          <span class="pattern-peak" id="peakDay">—</span>
+        </div>
+        <div class="day-strip" id="dayStrip">
+          <!-- 7 day cells rendered by JS -->
+        </div>
+      </div>
+    </div>
+    </section>
+
+    <section class="content-section">
+      <div class="section-title">Statistics</div>
+      <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-label">Avg. Daily Focus</div>
         <div class="stat-value" id="avgDaily">0m</div>
@@ -563,6 +966,7 @@
         <div class="stat-value" id="streak">0 <span>days</span></div>
       </div>
     </div>
+    </section>
 
   </div>
 

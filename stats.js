@@ -14,6 +14,10 @@ const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const avgLine = document.getElementById('avgLine');
 const chartAvg = document.getElementById('chartAvg');
+const hourStrip = document.getElementById('hourStrip');
+const dayStrip = document.getElementById('dayStrip');
+const peakHours = document.getElementById('peakHours');
+const peakDay = document.getElementById('peakDay');
 
 let currentView = 'week';
 let currentOffset = 0; // 0 = current period, -1 = previous period, etc.
@@ -24,6 +28,7 @@ let earliestDataDate = null;
 // Generate dummy data for testing (dev mode only)
 async function loadDummyData() {
   const daily = {};
+  const hourlyByDate = {};
   let totalMinutes = 0;
   const today = new Date();
   
@@ -59,9 +64,42 @@ async function loadDummyData() {
     
     daily[dateKey] = minutes;
     totalMinutes += minutes;
+    
+    // Distribute minutes across hours for this specific date
+    // Peak hours: 9-11am and 2-5pm
+    const peakHours = [9, 10, 11, 14, 15, 16, 17];
+    const normalHours = [8, 12, 13, 18, 19, 20, 21];
+    let remaining = minutes;
+    
+    hourlyByDate[dateKey] = {};
+    
+    // 70% in peak hours
+    const peakMinutes = Math.floor(remaining * 0.7);
+    for (const h of peakHours) {
+      const chunk = Math.floor(peakMinutes / peakHours.length) + Math.floor(Math.random() * 10);
+      const toAdd = Math.min(chunk, remaining);
+      if (toAdd > 0) {
+        hourlyByDate[dateKey][h] = (hourlyByDate[dateKey][h] || 0) + toAdd;
+        remaining -= chunk;
+      }
+      if (remaining <= 0) break;
+    }
+    
+    // Rest in normal hours
+    if (remaining > 0) {
+      for (const h of normalHours) {
+        const chunk = Math.floor(remaining / normalHours.length) + Math.floor(Math.random() * 5);
+        const toAdd = Math.min(chunk, remaining);
+        if (toAdd > 0) {
+          hourlyByDate[dateKey][h] = (hourlyByDate[dateKey][h] || 0) + toAdd;
+          remaining -= chunk;
+        }
+        if (remaining <= 0) break;
+      }
+    }
   }
   
-  const stats = { daily, totalMinutes };
+  const stats = { daily, hourlyByDate, totalMinutes };
   await chrome.storage.sync.set({ stats });
   console.log('🧪 Loaded dummy stats data:', Object.keys(daily).length, 'days,', totalMinutes, 'total minutes');
   return stats;
@@ -270,6 +308,7 @@ async function loadStats() {
     updateSummary();
     updateChart();
     updateStats();
+    updatePatterns();
     updateNavButtons();
   } catch (e) {
     console.error('Error loading stats:', e);
@@ -328,20 +367,22 @@ function updateChart() {
   let startDate, endDate;
   
   if (currentView === 'week') {
-    // 7 days with offset
-    endDate = new Date(today);
-    endDate.setDate(endDate.getDate() + (currentOffset * 7));
-    startDate = new Date(endDate);
-    startDate.setDate(startDate.getDate() - 6);
+    // Week view: Sunday to Saturday (matching weekly rhythm chart)
+    // Find the Sunday of the current week
+    const currentDayOfWeek = today.getDay(); // 0 = Sunday
+    startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - currentDayOfWeek + (currentOffset * 7));
+    endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 6); // Saturday
     
-    // Don't go beyond today
-    if (endDate > realToday) endDate = new Date(realToday);
-    
+    // Always show all 7 days (Sun-Sat), future days will have 0 values
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dateKey = getDateKey(d);
+      // Future days get 0, past/today days get actual value
+      const isFuture = d > realToday;
       bars.push({
         label: getDayLabel(d),
-        value: getMinutesForDate(dateKey),
+        value: isFuture ? 0 : getMinutesForDate(dateKey),
         isToday: dateKey === getDateKey(realToday)
       });
     }
@@ -523,6 +564,127 @@ function updateStats() {
   } else {
     streak.innerHTML = `${currentStreak} <span>days</span>`;
   }
+}
+
+// Update focus patterns (peak hours and weekly rhythm)
+// Uses last 90 days of data for both charts
+function updatePatterns() {
+  // Calculate 90-day cutoff
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 90);
+  const cutoffKey = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
+  
+  // --- Peak Hours (24-hour heatmap) ---
+  // Aggregate hourly data from last 90 days
+  const hourValues = new Array(24).fill(0);
+  const hourlyByDate = statsData.hourlyByDate || {};
+  
+  for (const [dateKey, hours] of Object.entries(hourlyByDate)) {
+    if (dateKey >= cutoffKey && hours && typeof hours === 'object') {
+      for (const [hour, mins] of Object.entries(hours)) {
+        const h = parseInt(hour, 10);
+        if (h >= 0 && h < 24 && typeof mins === 'number') {
+          hourValues[h] += mins;
+        }
+      }
+    }
+  }
+  
+  const maxHour = Math.max(...hourValues, 1);
+  
+  // Find peak hour range
+  let peakStart = -1;
+  let peakEnd = -1;
+  let maxVal = 0;
+  
+  for (let h = 0; h < 24; h++) {
+    if (hourValues[h] > maxVal) {
+      maxVal = hourValues[h];
+      peakStart = h;
+      peakEnd = h;
+    } else if (hourValues[h] === maxVal && maxVal > 0 && h === peakEnd + 1) {
+      peakEnd = h;
+    }
+  }
+  
+  // Format peak hours display
+  if (maxVal > 0) {
+    const formatHour = (h) => {
+      if (h === 0) return '12am';
+      if (h === 12) return '12pm';
+      return h < 12 ? `${h}am` : `${h - 12}pm`;
+    };
+    if (peakStart === peakEnd) {
+      peakHours.textContent = formatHour(peakStart);
+    } else {
+      peakHours.textContent = `${formatHour(peakStart)} – ${formatHour(peakEnd)}`;
+    }
+  } else {
+    peakHours.textContent = '—';
+  }
+  
+  // Render hour cells
+  hourStrip.innerHTML = hourValues.map((val, h) => {
+    const intensity = maxHour > 0 ? Math.ceil((val / maxHour) * 5) : 0;
+    const formatHour = (h) => {
+      if (h === 0) return '12:00 AM';
+      if (h === 12) return '12:00 PM';
+      return h < 12 ? `${h}:00 AM` : `${h - 12}:00 PM`;
+    };
+    const tooltip = val > 0 ? `${formatHour(h)}: ${formatTime(val)}` : formatHour(h);
+    return `<div class="hour-cell heat-${intensity}" data-tooltip="${tooltip}"></div>`;
+  }).join('');
+  
+  // --- Weekly Rhythm (day of week) ---
+  // Uses same 90-day window as Peak Hours
+  const dayTotals = [0, 0, 0, 0, 0, 0, 0]; // Sun-Sat
+  const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+  
+  for (const [dateKey, minutes] of Object.entries(statsData.daily || {})) {
+    if (dateKey >= cutoffKey && minutes > 0) {
+      const date = new Date(dateKey + 'T12:00:00'); // Noon to avoid timezone issues
+      const dow = date.getDay();
+      dayTotals[dow] += minutes;
+      dayCounts[dow]++;
+    }
+  }
+  
+  // Calculate averages per day
+  const dayAvgs = dayTotals.map((total, i) => dayCounts[i] > 0 ? Math.round(total / dayCounts[i]) : 0);
+  const maxDayAvg = Math.max(...dayAvgs, 1);
+  
+  // Find peak day
+  let peakDayIndex = -1;
+  let peakDayVal = 0;
+  for (let d = 0; d < 7; d++) {
+    if (dayAvgs[d] > peakDayVal) {
+      peakDayVal = dayAvgs[d];
+      peakDayIndex = d;
+    }
+  }
+  
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  
+  if (peakDayVal > 0) {
+    peakDay.textContent = fullDayNames[peakDayIndex];
+  } else {
+    peakDay.textContent = '—';
+  }
+  
+  // Render day cells
+  const today = new Date().getDay();
+  dayStrip.innerHTML = dayAvgs.map((avg, d) => {
+    const intensity = maxDayAvg > 0 ? Math.ceil((avg / maxDayAvg) * 5) : 0;
+    const tooltip = avg > 0 ? `${fullDayNames[d]}: avg ${formatTime(avg)}` : fullDayNames[d];
+    const isToday = d === today;
+    return `
+      <div class="day-cell">
+        <div class="day-bar heat-${intensity}" data-tooltip="${tooltip}"></div>
+        <span class="day-label${isToday ? ' today' : ''}">${dayNames[d]}</span>
+      </div>
+    `;
+  }).join('');
 }
 
 // Tab switching

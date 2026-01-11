@@ -926,7 +926,7 @@ importFile.addEventListener('change', async (e) => {
     
     // Import stats (merge daily data, keep higher values)
     if (hasStats && data.stats.daily) {
-      const existingStats = result.stats || { daily: {}, totalMinutes: 0 };
+      const existingStats = result.stats || { daily: {}, totalMinutes: 0, hourlyByDate: {} };
       const mergedDaily = { ...existingStats.daily };
       let addedMinutes = 0;
       
@@ -948,8 +948,37 @@ importFile.addEventListener('change', async (e) => {
         }
       }
       
+      // Merge hourlyByDate data (keep higher values per date per hour)
+      const existingHourlyByDate = existingStats.hourlyByDate || {};
+      const importedHourlyByDate = data.stats.hourlyByDate || {};
+      const mergedHourlyByDate = { ...existingHourlyByDate };
+      
+      for (const [date, hours] of Object.entries(importedHourlyByDate)) {
+        // Validate date format
+        if (!dateKeyRegex.test(date)) continue;
+        if (!hours || typeof hours !== 'object') continue;
+        
+        if (!mergedHourlyByDate[date]) {
+          mergedHourlyByDate[date] = {};
+        }
+        
+        for (const [hour, mins] of Object.entries(hours)) {
+          const hourNum = parseInt(hour, 10);
+          // Validate hour is 0-23 and mins is valid
+          if (hourNum < 0 || hourNum > 23 || isNaN(hourNum)) continue;
+          if (typeof mins !== 'number' || !Number.isFinite(mins) || mins < 0) continue;
+          
+          const sanitizedMins = Math.floor(mins);
+          const existing = mergedHourlyByDate[date][hourNum] || 0;
+          if (sanitizedMins > existing) {
+            mergedHourlyByDate[date][hourNum] = sanitizedMins;
+          }
+        }
+      }
+      
       const mergedStats = {
         daily: mergedDaily,
+        hourlyByDate: mergedHourlyByDate,
         totalMinutes: (existingStats.totalMinutes || 0) + addedMinutes
       };
       
