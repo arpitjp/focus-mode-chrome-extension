@@ -17,11 +17,11 @@ A Chrome extension that blocks distracting websites to help you stay focused.
 ## Screenshots
 
 <p align="center">
-  <img src="assets/popup.png" alt="Popup" width="280">
-  <img src="assets/stats.png" alt="Stats" width="500">
+  <img src="docs/assets/popup.png" alt="Popup" width="280">
+  <img src="docs/assets/stats.png" alt="Stats" width="500">
 </p>
 <p align="center">
-  <img src="assets/blocked.png" alt="Blocked Page" width="700">
+  <img src="docs/assets/blocked.png" alt="Blocked Page" width="700">
 </p>
 
 ## Features
