@@ -194,21 +194,7 @@
       text-align: center;
       padding: 0 24px;
       position: relative;
-      overflow: hidden;
-      padding-bottom: 80px;
-    }
-
-    /* Gradient fade at bottom of hero to blend screenshots into background */
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 150px;
-      background: linear-gradient(to bottom, transparent 0%, var(--bg-primary) 100%);
-      pointer-events: none;
-      z-index: 2;
+      padding-bottom: 40px;
     }
 
     .hero-content {
@@ -371,7 +357,6 @@
       gap: 40px;
       flex-wrap: wrap;
       z-index: 1;
-      padding-bottom: 20px;
     }
 
     /* Floating orbs */
@@ -485,10 +470,22 @@
 
     /* Features Section */
     .features {
-      padding: 30px 0 40px;
-      margin-top: -60px;
+      padding: 60px 0 40px;
       position: relative;
       z-index: 3;
+      background: var(--bg-primary);
+    }
+
+    /* Gradient fade at top of features to blend with screenshots */
+    .features::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to bottom, transparent 0%, var(--bg-primary) 100%);
+      pointer-events: none;
     }
 
     .section-header {
@@ -1311,24 +1308,16 @@
         scrollProgress.style.width = `${progress}%`;
       }
       
-      // Multi-layer screenshot parallax - desktop only
+      // Multi-layer screenshot parallax - desktop only (no fade, features scroll over)
       if (!isMobile) {
-        // Fade out as features section scrolls into view
-        const fadeStart = 300;
-        const fadeEnd = 550;
-        const fadeProgress = Math.min(Math.max((scrolled - fadeStart) / (fadeEnd - fadeStart), 0), 1);
-        const screenshotOpacity = 1 - fadeProgress;
-        
-        // Strong parallax movement
+        // Slower parallax - screenshots move up slower than scroll, creating depth
         if (screenshotPopup) {
-            const y1 = scrolled * 0.6;
-            screenshotPopup.style.opacity = screenshotOpacity;
+            const y1 = scrolled * -0.15;
             screenshotPopup.style.transform = `translateY(${y1}px) rotateY(-8deg) rotateX(2deg)`;
         }
         
         if (screenshotStats) {
-            const y2 = scrolled * 0.4;
-            screenshotStats.style.opacity = screenshotOpacity;
+            const y2 = scrolled * -0.1;
             screenshotStats.style.transform = `translateY(${y2}px) rotateY(5deg) rotateX(-2deg)`;
         }
       }
