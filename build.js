@@ -21,9 +21,9 @@ const FILES_TO_COPY = [
   'blocked.html',
   'offscreen.html',
   'stats.html',
-  'icon16.png',
-  'icon48.png',
-  'icon128.png',
+  'docs/assets/icon16.png',
+  'docs/assets/icon48.png',
+  'docs/assets/icon128.png',
   'docs/assets/ding.mp3'
 ];
 

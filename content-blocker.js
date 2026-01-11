@@ -461,7 +461,7 @@
       <div class="focus-blocker-container">
         <div class="focus-blocker-header">
           <div class="focus-blocker-icon" id="focus-blocker-icon" title="Open Focus Mode settings">
-            <img src="${chrome.runtime.getURL('icon128.png')}" alt="Focus Mode">
+            <img src="${chrome.runtime.getURL('docs/assets/icon128.png')}" alt="Focus Mode">
           </div>
           <div class="focus-blocker-text-group">
             <h1 class="focus-blocker-title">Access to <span class="focus-blocker-site-name">${escapeHtml(site)}</span> is blocked</h1>
