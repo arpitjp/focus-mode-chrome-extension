@@ -26,7 +26,7 @@ const durationLabels = {
   'custom': '...'
 };
 
-let selectedDuration = 'infinite';
+let selectedDuration = '60';
 const customMinutes = document.getElementById('customMinutes');
 const timerText = document.getElementById('timerText');
 const statsBar = document.getElementById('statsBar');
@@ -450,7 +450,7 @@ async function loadState() {
     const blockedSites = syncResult.blockedSites ?? [];
     const blockingEndTime = syncResult.blockingEndTime ?? null;
     const blockingDuration = syncResult.blockingDuration ?? null;
-    const lastDurationOption = syncResult.lastDurationOption ?? 'infinite';
+    const lastDurationOption = syncResult.lastDurationOption ?? '60';
     const lastCustomMinutes = syncResult.lastCustomMinutes ?? null;
     
     blockingToggle.checked = blockingEnabled;

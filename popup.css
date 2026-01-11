@@ -3,10 +3,15 @@
   padding: 0;
   box-sizing: border-box;
   cursor: inherit;
-  }
-  
-  html {
-    cursor: default;
+}
+html,
+body {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: hidden;
+}
+html {
+  cursor: default;
 }
 
 :root {
@@ -59,6 +64,7 @@ img {
 
 .container {
   padding: 20px;
+  height: auto;
 }
 
 .header {
@@ -227,14 +233,18 @@ h1 {
 .toggle-section {
   background: var(--bg-secondary);
   padding: 12px 14px;
-    margin-bottom: 0;
+  margin-bottom: 0;
     border-radius: 8px;
   }
+/* Reduce bottom padding when stats-bar is hidden */
+.toggle-section:has(.stats-bar[style*="none"]) {
+  padding-bottom: 8px;
+}
   
-  .section-divider {
-    height: 1px;
-    background: var(--bg-tertiary);
-    margin: 12px 0;
+.section-divider {
+  height: 1px;
+  background: var(--bg-tertiary);
+  margin: 14px 0;
 }
 
 .toggle-row {
@@ -739,7 +749,7 @@ h1 {
 .sites-list li.empty-state {
   display: block;
   background: none;
-  padding: 16px 0;
+  padding: 8px 0;
   margin: 0;
   text-align: center;
   color: var(--text-muted);
@@ -790,7 +800,7 @@ h1 {
 
 
 .footer {
-  margin-top: 12px;
+  margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid var(--border-subtle);
   display: flex;
@@ -834,7 +844,7 @@ h1 {
   }
   
   .rate-link {
-    display: flex;
+  display: flex;
     align-items: center;
   text-decoration: none;
   font-size: 9px;
@@ -843,7 +853,8 @@ h1 {
   color: var(--text-primary);
   opacity: 0.55;
   transition: all 0.15s ease;
-  }
+  cursor: pointer;
+}
   
   .rate-link::before {
     content: '';
@@ -867,6 +878,7 @@ h1 {
   text-decoration: none;
   opacity: 0.85;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .coffee-link:hover {
