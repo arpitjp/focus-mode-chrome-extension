@@ -195,7 +195,21 @@
       text-align: center;
       padding: 0 24px;
       position: relative;
-      overflow: visible;
+      overflow: hidden;
+      padding-bottom: 120px;
+    }
+
+    /* Gradient fade at bottom of hero to blend screenshots into background */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(to bottom, transparent 0%, var(--bg-primary) 100%);
+      pointer-events: none;
+      z-index: 2;
     }
 
     .hero-content {
@@ -357,6 +371,8 @@
       align-items: flex-start;
       gap: 40px;
       flex-wrap: wrap;
+      z-index: 1;
+      padding-bottom: 60px;
     }
 
     /* Floating orbs */
@@ -424,8 +440,8 @@
         0 32px 80px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-      will-change: transform;
+      transition: box-shadow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+      will-change: transform, opacity, filter;
       transform-style: preserve-3d;
     }
 
@@ -459,37 +475,12 @@
 
     .screenshot-popup {
       max-width: 320px;
-      transform: translateY(var(--parallax-y, 0)) rotateY(-8deg) rotateX(2deg);
-      animation: floatScreenshot 6s ease-in-out infinite;
-    }
-
-    .screenshot-blocked {
-      max-width: 440px;
-      transform: translateY(var(--parallax-y3, 0)) rotateY(3deg) rotateX(-1deg);
-      animation: floatScreenshot3 6s ease-in-out infinite;
-      animation-delay: -1.5s;
+      transform: rotateY(-8deg) rotateX(2deg);
     }
 
     .screenshot-stats {
       max-width: 560px;
-      transform: translateY(var(--parallax-y2, 0)) rotateY(5deg) rotateX(-2deg);
-      animation: floatScreenshot2 6s ease-in-out infinite;
-      animation-delay: -3s;
-    }
-
-    @keyframes floatScreenshot {
-      0%, 100% { transform: translateY(var(--parallax-y, 0)) rotateY(-8deg) rotateX(2deg); }
-      50% { transform: translateY(calc(var(--parallax-y, 0px) - 20px)) rotateY(-6deg) rotateX(4deg); }
-    }
-
-    @keyframes floatScreenshot2 {
-      0%, 100% { transform: translateY(var(--parallax-y2, 0)) rotateY(5deg) rotateX(-2deg); }
-      50% { transform: translateY(calc(var(--parallax-y2, 0px) - 15px)) rotateY(7deg) rotateX(0deg); }
-    }
-
-    @keyframes floatScreenshot3 {
-      0%, 100% { transform: translateY(var(--parallax-y3, 0)) rotateY(3deg) rotateX(-1deg); }
-      50% { transform: translateY(calc(var(--parallax-y3, 0px) - 18px)) rotateY(5deg) rotateX(1deg); }
+      transform: rotateY(5deg) rotateX(-2deg);
     }
 
 
@@ -760,10 +751,6 @@
       .screenshot-popup {
         max-width: 260px;
       }
-
-      .screenshot-blocked {
-        max-width: 360px;
-      }
       
       .screenshot-stats {
         max-width: 440px;
@@ -831,7 +818,6 @@
       }
 
       .screenshot-popup,
-      .screenshot-blocked,
       .screenshot-stats {
         max-width: 90%;
         width: 100%;
@@ -941,16 +927,16 @@
       }
 
       .screenshot-popup,
-      .screenshot-blocked,
       .screenshot-stats {
         animation: none;
       }
 
       /* Disable parallax on mobile - stacked images don't work well with parallax */
       .screenshot-popup,
-      .screenshot-blocked,
       .screenshot-stats {
         transform: none !important;
+        opacity: 1 !important;
+        filter: none !important;
       }
 
       .screenshot-wrapper {
@@ -1260,7 +1246,6 @@
   <script>
     // Elements
     const screenshotPopup = document.querySelector('.screenshot-popup');
-    const screenshotBlocked = document.querySelector('.screenshot-blocked');
     const screenshotStats = document.querySelector('.screenshot-stats');
     const heroContent = document.querySelector('.hero-content');
     const bgGlow = document.querySelector('.bg-glow');
@@ -1325,21 +1310,33 @@
         scrollProgress.style.width = `${progress}%`;
       }
       
-      // Multi-layer screenshot parallax - desktop only
+      // Multi-layer screenshot parallax with fade/blur - desktop only
       if (!isMobile) {
+        // Calculate fade-out effect based on scroll (starts fading after 200px, fully faded by 600px)
+        const fadeStart = 150;
+        const fadeEnd = 500;
+        const fadeProgress = Math.min(Math.max((scrolled - fadeStart) / (fadeEnd - fadeStart), 0), 1);
+        const screenshotOpacity = 1 - fadeProgress * 0.85;
+        const screenshotBlur = fadeProgress * 8;
+        const screenshotScale = 1 - fadeProgress * 0.1;
+        
+        // Limit parallax movement to prevent overflow
+        const maxParallax = 150;
+        
         if (screenshotPopup) {
-            const y1 = scrolled * 0.4;
+            const y1 = Math.min(scrolled * 0.25, maxParallax);
             screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
-        }
-
-        if (screenshotBlocked) {
-            const y3 = scrolled * 0.3;
-            screenshotBlocked.style.setProperty('--parallax-y3', `${y3}px`);
+            screenshotPopup.style.opacity = screenshotOpacity;
+            screenshotPopup.style.filter = `blur(${screenshotBlur}px)`;
+            screenshotPopup.style.transform = `translateY(${y1}px) rotateY(-8deg) rotateX(2deg) scale(${screenshotScale})`;
         }
         
         if (screenshotStats) {
-            const y2 = scrolled * 0.2;
+            const y2 = Math.min(scrolled * 0.15, maxParallax * 0.6);
             screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
+            screenshotStats.style.opacity = screenshotOpacity;
+            screenshotStats.style.filter = `blur(${screenshotBlur}px)`;
+            screenshotStats.style.transform = `translateY(${y2}px) rotateY(5deg) rotateX(-2deg) scale(${screenshotScale})`;
         }
       }
       
