@@ -196,7 +196,7 @@
       padding: 0 24px;
       position: relative;
       overflow: hidden;
-      padding-bottom: 120px;
+      padding-bottom: 180px;
     }
 
     /* Gradient fade at bottom of hero to blend screenshots into background */
@@ -206,7 +206,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 200px;
+      height: 250px;
       background: linear-gradient(to bottom, transparent 0%, var(--bg-primary) 100%);
       pointer-events: none;
       z-index: 2;
@@ -1312,28 +1312,26 @@
       
       // Multi-layer screenshot parallax with fade/blur - desktop only
       if (!isMobile) {
-        // Calculate fade-out effect based on scroll (starts fading after 200px, fully faded by 600px)
-        const fadeStart = 150;
-        const fadeEnd = 500;
+        // Calculate fade-out effect based on scroll (starts fading when approaching features section)
+        const fadeStart = 400;
+        const fadeEnd = 700;
         const fadeProgress = Math.min(Math.max((scrolled - fadeStart) / (fadeEnd - fadeStart), 0), 1);
-        const screenshotOpacity = 1 - fadeProgress * 0.85;
-        const screenshotBlur = fadeProgress * 8;
-        const screenshotScale = 1 - fadeProgress * 0.1;
+        const screenshotOpacity = 1 - fadeProgress * 0.9;
+        const screenshotBlur = fadeProgress * 6;
+        const screenshotScale = 1 - fadeProgress * 0.08;
         
-        // Limit parallax movement to prevent overflow
-        const maxParallax = 150;
+        // More dramatic parallax with higher limits
+        const maxParallax = 300;
         
         if (screenshotPopup) {
-            const y1 = Math.min(scrolled * 0.25, maxParallax);
-            screenshotPopup.style.setProperty('--parallax-y', `${y1}px`);
+            const y1 = Math.min(scrolled * 0.5, maxParallax);
             screenshotPopup.style.opacity = screenshotOpacity;
             screenshotPopup.style.filter = `blur(${screenshotBlur}px)`;
             screenshotPopup.style.transform = `translateY(${y1}px) rotateY(-8deg) rotateX(2deg) scale(${screenshotScale})`;
         }
         
         if (screenshotStats) {
-            const y2 = Math.min(scrolled * 0.15, maxParallax * 0.6);
-            screenshotStats.style.setProperty('--parallax-y2', `${y2}px`);
+            const y2 = Math.min(scrolled * 0.35, maxParallax * 0.7);
             screenshotStats.style.opacity = screenshotOpacity;
             screenshotStats.style.filter = `blur(${screenshotBlur}px)`;
             screenshotStats.style.transform = `translateY(${y2}px) rotateY(5deg) rotateX(-2deg) scale(${screenshotScale})`;
